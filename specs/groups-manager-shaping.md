@@ -86,7 +86,7 @@ The user-specified solution. One app, one data store, all features as described.
 | ~~Q3~~ | ~~Auto-membership removal~~ | ✅ Resolved — rules are add-only; the only automatic removal from groups is Suspend (A3.4) | — |
 | ~~Q4~~ | ~~Rule nesting~~ | ✅ Resolved — flat AND/OR (one combinator shared across all conditions); no condition groups or nesting | — |
 | ~~Q5~~ | ~~Preview depth~~ | ✅ Resolved — Level 3: group view shows full rule summary inline (conditions + combinator + trigger settings) | — |
-| Q6 | **Tech stack:** Framework and hosting? | Partially resolved — data layer is client-side (localStorage / IndexedDB); framework TBD | Affects A1–A9 implementation |
+| ~~Q6~~ | ~~Tech stack: Framework and hosting?~~ | ✅ Resolved — Vite + React + TypeScript + Tailwind CSS; hosted on GitHub Pages via GitHub Actions; data layer is client-side (localStorage / IndexedDB) | — |
 | ~~Q7~~ | ~~Auth simplicity~~ | ✅ Resolved — text box, "me" pre-filled, no passwords, welcome-back message for returning employees | — |
 | ~~Q8~~ | ~~Profile management scope~~ | ✅ Resolved — any logged-in user can Create/Update/Suspend any profile except Zack's | — |
 | ~~Q9~~ | ~~Update own vs. others~~ | ✅ Resolved — any profile can be targeted | — |
