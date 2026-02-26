@@ -158,8 +158,11 @@ export default function GroupDetailPage() {
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Auto-membership</span>
               {isAdmin && (
-                <button disabled className="text-xs text-gray-400 cursor-default">
-                  Edit Rules (V7)
+                <button
+                  onClick={() => navigate(`/group/${groupId}/rules`)}
+                  className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  Edit Rules
                 </button>
               )}
             </div>
