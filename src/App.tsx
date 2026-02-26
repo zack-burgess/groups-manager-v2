@@ -5,6 +5,7 @@ import SetupPage from './pages/SetupPage'
 import ProfilePage from './pages/ProfilePage'
 import SearchPage from './pages/SearchPage'
 import GroupDetailPage from './pages/GroupDetailPage'
+import EmployeeManagementPage from './pages/EmployeeManagementPage'
 
 initializeStorage()
 
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/profile/:personId" element={<ProfilePage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/group/:groupId" element={<GroupDetailPage />} />
+        <Route path="/employees" element={<EmployeeManagementPage />} />
       </Routes>
     </BrowserRouter>
   )
