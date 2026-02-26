@@ -6,6 +6,7 @@ import ProfilePage from './pages/ProfilePage'
 import SearchPage from './pages/SearchPage'
 import GroupDetailPage from './pages/GroupDetailPage'
 import EmployeeManagementPage from './pages/EmployeeManagementPage'
+import CreateEditGroupPage from './pages/CreateEditGroupPage'
 
 initializeStorage()
 
@@ -19,6 +20,8 @@ export default function App() {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/group/:groupId" element={<GroupDetailPage />} />
         <Route path="/employees" element={<EmployeeManagementPage />} />
+        <Route path="/group/new" element={<CreateEditGroupPage />} />
+        <Route path="/group/:groupId/edit" element={<CreateEditGroupPage />} />
       </Routes>
     </BrowserRouter>
   )

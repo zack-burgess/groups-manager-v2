@@ -38,6 +38,63 @@ export function loadGroupRules(groupId: string): AutoMembershipRule | null {
   return getAutoMembershipRules().find(r => r.groupId === groupId) ?? null
 }
 
+// N45: Load a group for editing; null groupId = create mode (returns null)
+export function loadGroupForEdit(groupId: string): Group | null {
+  return getGroups().find(g => g.id === groupId) ?? null
+}
+
+// N47: Create or update a group. Creator is added as ADMIN in create mode.
+// Returns the saved/updated Group.
+export function saveGroup(
+  name: string,
+  description: string,
+  setting: MembershipSetting,
+  actorId: string,
+  groupId?: string,
+): Group {
+  if (groupId) {
+    // Edit mode — update existing group
+    const groups = getGroups()
+    const updated = groups.map(g =>
+      g.id === groupId ? { ...g, name, description, membershipSetting: setting } : g
+    )
+    saveGroups(updated)
+    writeChangeEvent({
+      groupId,
+      actorType: 'PERSON',
+      actorId,
+      eventType: 'GROUP_UPDATED',
+      payload: { name },
+    })
+    return updated.find(g => g.id === groupId)!
+  } else {
+    // Create mode — new group, creator becomes first ADMIN
+    const newGroup: Group = {
+      id: `g${Date.now()}`,
+      name,
+      description,
+      membershipSetting: setting,
+    }
+    saveGroups([...getGroups(), newGroup])
+    const newMembership: Membership = {
+      groupId: newGroup.id,
+      personId: actorId,
+      role: 'ADMIN',
+      addedAt: new Date().toISOString(),
+      addedBy: actorId,
+    }
+    saveMemberships([...getMemberships(), newMembership])
+    writeChangeEvent({
+      groupId: newGroup.id,
+      actorType: 'PERSON',
+      actorId,
+      eventType: 'GROUP_CREATED',
+      payload: { name },
+    })
+    return newGroup
+  }
+}
+
 // N20: Write a change event to S4
 export function writeChangeEvent(event: Omit<ChangeEvent, 'id' | 'timestamp'>): void {
   const events = getChangeEvents()

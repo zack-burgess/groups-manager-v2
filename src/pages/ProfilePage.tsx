@@ -87,8 +87,8 @@ export default function ProfilePage() {
             )}
 
             <button
-              className="mt-4 text-sm text-gray-400 cursor-default select-none"
-              disabled
+              onClick={() => navigate('/group/new')}
+              className="mt-4 text-sm text-blue-600 hover:text-blue-800 transition-colors"
             >
               + Create a group
             </button>
