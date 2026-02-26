@@ -42,6 +42,12 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-gray-50">
       <AppHeader />
       <main className="max-w-4xl mx-auto px-6 py-8">
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-4 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+        >
+          ← Back
+        </button>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">{person.name}</h2>
 
@@ -67,12 +73,14 @@ export default function ProfilePage() {
             ) : (
               <ul className="space-y-2">
                 {memberships.map(({ group, role }) => (
-                  <li
-                    key={group.id}
-                    className="flex items-center justify-between px-4 py-3 rounded-lg border border-gray-100 bg-gray-50 text-sm text-gray-400 cursor-default select-none"
-                  >
-                    <span className="text-gray-700 font-medium">{group.name}</span>
-                    <RoleBadge role={role} />
+                  <li key={group.id}>
+                    <button
+                      onClick={() => navigate(`/group/${group.id}`)}
+                      className="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-gray-100 bg-gray-50 hover:bg-blue-50 hover:border-blue-200 transition-colors text-sm"
+                    >
+                      <span className="text-gray-700 font-medium">{group.name}</span>
+                      <RoleBadge role={role} />
+                    </button>
                   </li>
                 ))}
               </ul>
