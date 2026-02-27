@@ -1,7 +1,7 @@
 export type PersonStatus = 'ACTIVE' | 'SUSPENDED'
 export type MemberRole = 'MEMBER' | 'ADMIN'
 export type MembershipSetting = 'ADMIN_ONLY' | 'OPEN'
-export type ActorType = 'PERSON' | 'AUTOMATIC_MEMBERSHIP'
+export type ActorType = 'PERSON' | 'AUTOMATIC_MEMBERSHIP' | 'GROUP_CREATED'
 
 export interface Person {
   id: string

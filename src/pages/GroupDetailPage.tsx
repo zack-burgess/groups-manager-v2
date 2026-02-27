@@ -402,9 +402,11 @@ function RuleSummary({ rules }: { rules: AutoMembershipRule }) {
 function HistoryRow({ event }: { event: ChangeEvent }) {
   const actorLabel = event.actorType === 'AUTOMATIC_MEMBERSHIP'
     ? 'Auto-Membership'
-    : event.actorId
-      ? (loadPerson(event.actorId)?.name ?? event.actorId)
-      : 'system'
+    : event.actorType === 'GROUP_CREATED'
+      ? 'Creating Group'
+      : event.actorId
+        ? (loadPerson(event.actorId)?.name ?? event.actorId)
+        : 'system'
 
   const date = new Date(event.timestamp).toLocaleDateString(undefined, {
     month: 'short', day: 'numeric', year: 'numeric',

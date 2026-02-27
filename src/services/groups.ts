@@ -91,6 +91,14 @@ export function saveGroup(
       eventType: 'GROUP_CREATED',
       payload: { name },
     })
+    const person = getPeople().find(p => p.id === actorId)
+    writeChangeEvent({
+      groupId: newGroup.id,
+      actorType: 'GROUP_CREATED',
+      actorId: null,
+      eventType: 'MEMBER_ADDED',
+      payload: { personId: actorId, personName: person?.name ?? actorId },
+    })
     return newGroup
   }
 }

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { PREDEFINED_TITLES, PREDEFINED_ORGS } from '../data/lookups'
 import { createEmployee, generateEmail } from '../services/people'
-import { getPeople, getGroups } from '../services/storage'
+import { getPeople, getGroups, getMemberships } from '../services/storage'
 import { addMember, changeMemberRole } from '../services/groups'
 
 interface SetupLocationState {
@@ -44,8 +44,10 @@ export default function SetupPage() {
     if (isFirstSignup) {
       const recruitingGroup = getGroups().find(g => g.name === 'Recruiting')
       if (recruitingGroup) {
-        addMember(recruitingGroup.id, person.id, person.id)
-        changeMemberRole(recruitingGroup.id, person.id, 'ADMIN', person.id)
+        const recruitingAdmin = getMemberships().find(m => m.groupId === recruitingGroup.id && m.role === 'ADMIN')
+        const actorId = recruitingAdmin?.personId ?? person.id
+        addMember(recruitingGroup.id, person.id, actorId)
+        changeMemberRole(recruitingGroup.id, person.id, 'ADMIN', actorId)
       }
     }
     if (fromAdmin) {
@@ -67,10 +69,10 @@ export default function SetupPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-10 w-full max-w-md">
         <h1 className="text-2xl font-semibold text-gray-900 mb-1">
-          {fromAdmin ? 'Create Employee' : 'Complete your profile'}
+          {fromAdmin ? 'Create Employee' : 'Complete your Employee Profile'}
         </h1>
         <p className="text-sm text-gray-500 mb-8">
-          {fromAdmin ? "Fill in the new employee's details." : 'Tell us a bit more to get you set up.'}
+          {fromAdmin ? "Fill in the new employee's details." : 'Fill in your details to get started.'}
         </p>
 
         <div className="space-y-5">
