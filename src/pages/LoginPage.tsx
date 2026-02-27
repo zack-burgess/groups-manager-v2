@@ -7,7 +7,7 @@ type LoginState = 'idle' | 'welcome' | 'suspended'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const [name, setName] = useState('')
+  const [name, setName] = useState('me')
   const [loginState, setLoginState] = useState<LoginState>('idle')
   const [welcomeName, setWelcomeName] = useState('')
 
