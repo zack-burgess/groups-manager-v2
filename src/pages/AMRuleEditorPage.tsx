@@ -210,9 +210,11 @@ export default function AMRuleEditorPage() {
                     <div className="flex items-center my-2 pl-4">
                       <button
                         onClick={() => setCombinator(c => c === 'AND' ? 'OR' : 'AND')}
-                        className="text-xs font-semibold px-2.5 py-0.5 rounded border border-blue-300 text-blue-600 hover:bg-blue-50 transition-colors"
+                        className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded border border-blue-300 text-blue-600 hover:bg-blue-50 transition-colors"
                       >
-                        {combinator}
+                        <span className={combinator === 'AND' ? 'opacity-100' : 'opacity-40'}>AND</span>
+                        <span className="opacity-30">|</span>
+                        <span className={combinator === 'OR' ? 'opacity-100' : 'opacity-40'}>OR</span>
                       </button>
                     </div>
                   )}
@@ -350,7 +352,7 @@ function PreviewRow({ person, fields, status }: { person: Person; fields: Field[
   }[status]
 
   return (
-    <div className="px-4 py-2 text-sm text-gray-700 flex items-center justify-between gap-2">
+    <div className="pl-6 pr-4 py-2 text-sm text-gray-700 flex items-center justify-between gap-2">
       <div className="flex items-center gap-2 flex-wrap min-w-0">
         <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -490,26 +492,36 @@ function ConditionRow({ condition, isOnly, onChange, onRemove }: ConditionRowPro
   return (
     <div className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 bg-gray-50">
       {/* U44: Field selector */}
-      <select
-        value={condition.field}
-        onChange={e => onChange({ field: e.target.value as Field })}
-        className="px-2 py-1.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        <option value="title">Title</option>
-        <option value="organization">Organization</option>
-        <option value="email">Email</option>
-      </select>
+      <div className="relative">
+        <select
+          value={condition.field}
+          onChange={e => onChange({ field: e.target.value as Field })}
+          className="appearance-none pl-2 pr-7 py-1.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="title">Title</option>
+          <option value="organization">Organization</option>
+          <option value="email">Email</option>
+        </select>
+        <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
 
       {/* U45: Operator selector */}
-      <select
-        value={condition.operator}
-        onChange={e => onChange({ operator: e.target.value as Operator })}
-        className="px-2 py-1.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        {operatorOptions.map(op => (
-          <option key={op.value} value={op.value}>{op.label}</option>
-        ))}
-      </select>
+      <div className="relative">
+        <select
+          value={condition.operator}
+          onChange={e => onChange({ operator: e.target.value as Operator })}
+          className="appearance-none pl-2 pr-7 py-1.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          {operatorOptions.map(op => (
+            <option key={op.value} value={op.value}>{op.label}</option>
+          ))}
+        </select>
+        <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
 
       {/* U46: Value input — checkboxes for is_one_of, combobox/text otherwise */}
       <div className="flex-1">
