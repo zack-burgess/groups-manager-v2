@@ -21,7 +21,6 @@ export const PREDEFINED_ORGS = [
   'Sales',
   'Human Resources',
   'Legal',
-  'Recruiting',
   'Security',
   'Data & Analytics',
 ]

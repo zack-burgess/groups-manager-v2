@@ -9,7 +9,7 @@ const seedData: SeedData = {
     { id: 'p5', name: 'Sofia Rodriguez', email: 'sofia.rodriguez@acme.com', title: 'Product Manager', organization: 'Research and Development', status: 'ACTIVE', isSystemAdmin: false },
     { id: 'p6', name: 'Emily Torres', email: 'emily.torres@acme.com', title: 'Designer', organization: 'Research and Development', status: 'ACTIVE', isSystemAdmin: false },
     { id: 'p7', name: 'Aisha Patel', email: 'aisha.patel@acme.com', title: 'UX Researcher', organization: 'Research and Development', status: 'ACTIVE', isSystemAdmin: false },
-    { id: 'p8', name: "Ryan O'Brien", email: 'ryan.obrien@acme.com', title: 'Recruiter', organization: 'Recruiting', status: 'ACTIVE', isSystemAdmin: false },
+    { id: 'p8', name: "Ryan O'Brien", email: 'ryan.obrien@acme.com', title: 'Recruiter', organization: 'Human Resources', status: 'ACTIVE', isSystemAdmin: false },
     { id: 'p9', name: 'Chris Lee', email: 'chris.lee@acme.com', title: 'Data Analyst', organization: 'Data & Analytics', status: 'SUSPENDED', isSystemAdmin: false },
     { id: 'p10', name: 'James Wilson', email: 'james.wilson@acme.com', title: 'Marketing Manager', organization: 'Marketing', status: 'ACTIVE', isSystemAdmin: false },
     { id: 'p11', name: 'Ethan Davis', email: 'ethan.davis@acme.com', title: 'Account Executive', organization: 'Sales', status: 'ACTIVE', isSystemAdmin: false },
