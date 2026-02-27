@@ -4,6 +4,7 @@ export const PREDEFINED_TITLES = [
   'Engineering Manager',
   'Product Manager',
   'Product Manager and Builder',
+  'Hands-On Product Leader',
   'Designer',
   'UX Researcher',
   'Recruiter',
