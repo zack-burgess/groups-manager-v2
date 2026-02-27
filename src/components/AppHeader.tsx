@@ -91,13 +91,13 @@ export default function AppHeader() {
                   >
                     Reset Demo
                   </button>
+                  <hr className="my-1 border-gray-100" />
                   <button
                     disabled
                     className="w-full text-left px-4 py-2 text-sm text-gray-400 cursor-default"
                   >
                     About
                   </button>
-                  <hr className="my-1 border-gray-100" />
                   <button
                     onClick={handleLogout}
                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors"
