@@ -387,7 +387,7 @@ function RuleSummary({ rules }: { rules: AutoMembershipRule }) {
 
 function HistoryRow({ event }: { event: ChangeEvent }) {
   const actorLabel = event.actorType === 'AUTOMATIC_MEMBERSHIP'
-    ? 'auto-membership'
+    ? 'Auto-Membership'
     : event.actorId
       ? (loadPerson(event.actorId)?.name ?? event.actorId)
       : 'system'
