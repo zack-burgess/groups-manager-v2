@@ -1,12 +1,17 @@
 import { useState, useRef, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { getSession } from '../services/storage'
 import { logout } from '../services/people'
 
 export default function AppHeader() {
   const session = getSession()
   const navigate = useNavigate()
-  const [query, setQuery] = useState('')
+  const [searchParams] = useSearchParams()
+  const [query, setQuery] = useState(searchParams.get('q') ?? '')
+
+  useEffect(() => {
+    setQuery(searchParams.get('q') ?? '')
+  }, [searchParams])
   const [settingsOpen, setSettingsOpen] = useState(false)
   const settingsRef = useRef<HTMLDivElement>(null)
 
@@ -44,14 +49,23 @@ export default function AppHeader() {
 
         {session && (
           <>
-            <form onSubmit={handleSearch} className="flex-1 max-w-sm">
+            <form onSubmit={handleSearch} className="flex-1 max-w-sm relative">
               <input
-                type="search"
+                type="text"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Search people and groups…"
-                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-1.5 pr-7 text-sm border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => { setQuery(''); navigate('/search') }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors text-sm leading-none"
+                >
+                  ✕
+                </button>
+              )}
             </form>
 
             {/* H3-H7: Settings dropdown */}

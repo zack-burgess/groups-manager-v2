@@ -16,6 +16,7 @@ export default function ProfilePage() {
   const navigate = useNavigate()
   const [person, setPerson] = useState<Person | null>(null)
   const [memberships, setMemberships] = useState<GroupMembership[]>([])
+  const [isOwnProfile, setIsOwnProfile] = useState(false)
 
   useEffect(() => {
     const session = getSession()
@@ -34,6 +35,7 @@ export default function ProfilePage() {
     }
     setPerson(found)
     setMemberships(loadPersonMemberships(personId))
+    setIsOwnProfile(personId === session.personId)
   }, [personId, navigate])
 
   if (!person) return null
@@ -42,12 +44,14 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-gray-50">
       <AppHeader />
       <main className="max-w-4xl mx-auto px-6 py-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="mb-4 text-sm text-gray-500 hover:text-gray-900 transition-colors"
-        >
-          ← Back
-        </button>
+        {!isOwnProfile && (
+          <button
+            onClick={() => navigate(-1)}
+            className="mb-4 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+          >
+            ← Back
+          </button>
+        )}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">{person.name}</h2>
 
@@ -72,7 +76,7 @@ export default function ProfilePage() {
               <p className="text-sm text-gray-400">No group memberships.</p>
             ) : (
               <ul className="space-y-2">
-                {memberships.map(({ group, role }) => (
+                {[...memberships].sort((a, b) => a.role === 'ADMIN' && b.role !== 'ADMIN' ? -1 : b.role === 'ADMIN' && a.role !== 'ADMIN' ? 1 : 0).map(({ group, role }) => (
                   <li key={group.id}>
                     <button
                       onClick={() => navigate(`/group/${group.id}`)}
@@ -102,13 +106,13 @@ export default function ProfilePage() {
 function RoleBadge({ role }: { role: MemberRole }) {
   if (role === 'ADMIN') {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+      <span className="inline-flex items-center w-16 px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
         Admin
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+    <span className="inline-flex items-center w-16 px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
       Member
     </span>
   )

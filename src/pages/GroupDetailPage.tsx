@@ -4,7 +4,7 @@ import AppHeader from '../components/AppHeader'
 import { getSession } from '../services/storage'
 import {
   loadGroup, loadGroupMembers, loadGroupHistory, loadGroupRules,
-  changeGroupSetting, removeMember, changeMemberRole,
+  removeMember, changeMemberRole,
   checkAddMemberPermission, searchNonMembers, addMember,
 } from '../services/groups'
 import { loadPerson } from '../services/people'
@@ -69,13 +69,6 @@ export default function GroupDetailPage() {
   const isAdmin = currentMembership?.role === 'ADMIN'
   const adminCount = members.filter(m => m.role === 'ADMIN').length
 
-  function handleChangeSetting() {
-    if (!groupId || !currentPersonId) return
-    const newSetting = group!.membershipSetting === 'OPEN' ? 'ADMIN_ONLY' : 'OPEN'
-    changeGroupSetting(groupId, newSetting, currentPersonId)
-    refresh()
-  }
-
   function handleRemove(personId: string) {
     if (!groupId || !currentPersonId) return
     removeMember(groupId, personId, currentPersonId)
@@ -129,40 +122,37 @@ export default function GroupDetailPage() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           {/* Group header */}
-          <div className="flex items-start justify-between mb-2">
+          <div className="flex items-center gap-2 mb-2">
             <h2 className="text-xl font-semibold text-gray-900">{group.name}</h2>
-            <div className="flex items-center gap-2">
-              <MembershipSettingBadge setting={group.membershipSetting} />
-              {isAdmin && (
-                <>
-                  <button
-                    onClick={handleChangeSetting}
-                    className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    Change
-                  </button>
-                  <button
-                    onClick={() => navigate(`/group/${groupId}/edit`)}
-                    className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    Edit Group
-                  </button>
-                </>
-              )}
-            </div>
+            {isAdmin && (
+              <button
+                onClick={() => navigate(`/group/${groupId}/edit`)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+                title="Edit group"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 20h9"/>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+              </button>
+            )}
           </div>
           <p className="text-sm text-gray-500 mb-6">{group.description}</p>
 
           {/* AM panel */}
           <div className="mb-6 p-4 rounded-lg border border-gray-100 bg-gray-50">
-            <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Auto-membership</span>
               {isAdmin && (
                 <button
                   onClick={() => navigate(`/group/${groupId}/rules`)}
-                  className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  title="Edit rules"
                 >
-                  Edit Rules
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  </svg>
                 </button>
               )}
             </div>
@@ -170,7 +160,7 @@ export default function GroupDetailPage() {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-4 border-b border-gray-200 mb-6">
+          <div className="flex gap-4 border-b border-gray-200 mb-4">
             <button
               onClick={() => setTab('members')}
               className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
@@ -193,44 +183,69 @@ export default function GroupDetailPage() {
             </button>
           </div>
 
+          {/* Members tab note */}
+          {tab === 'members' && (
+            <p className="text-xs text-gray-400 mb-4">
+              {group.membershipSetting === 'OPEN' ? 'Anyone can add members' : 'Admins can add members'} · Anyone can remove themselves
+            </p>
+          )}
+
           {/* Members tab */}
           {tab === 'members' && (
             <ul className="space-y-2">
-              {members.map(({ person, role }) => {
+              {[...members].sort((a, b) => {
+                if (a.role !== b.role) return a.role === 'ADMIN' ? -1 : 1
+                if (a.person.id === currentPersonId) return -1
+                if (b.person.id === currentPersonId) return 1
+                return 0
+              }).map(({ person, role }) => {
                 const isLastAdmin = role === 'ADMIN' && adminCount === 1
-                const canRemoveThis = isAdmin || person.id === currentPersonId
+                const canRemoveThis = (isAdmin || person.id === currentPersonId) && !isLastAdmin
                 const canPromoteDemote = isAdmin && person.id !== currentPersonId
                 return (
                   <li
                     key={person.id}
-                    className="flex items-center justify-between px-4 py-3 rounded-lg border border-gray-100 bg-gray-50 text-sm gap-3"
+                    className="flex items-center gap-3 px-4 py-2 rounded-lg border border-gray-100 bg-gray-50 text-sm"
                   >
+                    {/* Name · Title — one line */}
                     <button
                       onClick={() => navigate(`/profile/${person.id}`)}
-                      className="text-gray-700 font-medium hover:text-blue-600 transition-colors text-left flex-1"
+                      className="flex-1 text-left min-w-0 hover:text-blue-600 transition-colors"
                     >
-                      {person.name}
+                      <span className="font-medium text-gray-700">{person.name}</span>
+                      <span className="text-gray-400 ml-1">· {person.title}</span>
                     </button>
-                    <div className="flex items-center gap-2 shrink-0">
+
+                    {/* Role badge + arrow */}
+                    <div className="flex items-center gap-1 shrink-0">
                       <RoleBadge role={role} />
-                      {canPromoteDemote && (
+                      <span className={`relative group inline-flex items-center ${canPromoteDemote ? '' : 'invisible'}`}>
                         <button
                           onClick={() => handleRoleChange(person.id, role)}
-                          disabled={isLastAdmin && role === 'ADMIN'}
-                          className="text-xs text-blue-600 hover:text-blue-800 disabled:text-gray-300 disabled:cursor-default transition-colors"
+                          disabled={!canPromoteDemote || (isLastAdmin && role === 'ADMIN')}
+                          className="text-gray-400 hover:text-blue-600 disabled:text-gray-200 disabled:cursor-default transition-colors leading-none"
                         >
-                          {role === 'ADMIN' ? 'Demote' : 'Promote'}
+                          {role === 'ADMIN' ? '↓' : '↑'}
                         </button>
-                      )}
-                      {canRemoveThis && (
-                        <button
-                          onClick={() => handleRemove(person.id)}
-                          className="text-xs text-red-500 hover:text-red-700 transition-colors"
-                        >
-                          Remove
-                        </button>
-                      )}
+                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-xs text-white bg-gray-700 rounded whitespace-nowrap hidden group-hover:block pointer-events-none">
+                          {role === 'ADMIN' ? 'Demote to Member' : 'Promote to Admin'}
+                        </span>
+                      </span>
                     </div>
+
+                    {/* Remove */}
+                    <span className={`relative group inline-flex items-center ml-2 ${canRemoveThis ? '' : 'invisible'}`}>
+                      <button
+                        onClick={() => handleRemove(person.id)}
+                        disabled={!canRemoveThis}
+                        className="text-gray-400 hover:text-red-500 transition-colors text-sm leading-none"
+                      >
+                        ✕
+                      </button>
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-xs text-white bg-gray-700 rounded whitespace-nowrap hidden group-hover:block pointer-events-none">
+                        Remove
+                      </span>
+                    </span>
                   </li>
                 )
               })}
@@ -294,46 +309,36 @@ export default function GroupDetailPage() {
           )}
 
           {/* History tab */}
-          {tab === 'history' && (
-            <ul className="space-y-2">
-              {history.length === 0 && (
-                <p className="text-sm text-gray-400">No history yet.</p>
-              )}
-              {history.map(event => (
-                <li
-                  key={event.id}
-                  className="px-4 py-3 rounded-lg border border-gray-100 bg-gray-50 text-sm text-gray-700"
-                >
-                  <HistoryRow event={event} />
-                </li>
-              ))}
-            </ul>
-          )}
+          {tab === 'history' && (() => {
+            const membershipHistory = history.filter(e =>
+              e.eventType === 'MEMBER_ADDED' || e.eventType === 'MEMBER_REMOVED'
+            )
+            return (
+              <ul className="space-y-2">
+                {membershipHistory.length === 0 && (
+                  <p className="text-sm text-gray-400">No membership history yet.</p>
+                )}
+                {membershipHistory.map(event => (
+                  <li
+                    key={event.id}
+                    className="px-4 py-3 rounded-lg border border-gray-100 bg-gray-50 text-sm text-gray-700"
+                  >
+                    <HistoryRow event={event} />
+                  </li>
+                ))}
+              </ul>
+            )
+          })()}
         </div>
       </main>
     </div>
   )
 }
 
-function MembershipSettingBadge({ setting }: { setting: Group['membershipSetting'] }) {
-  if (setting === 'OPEN') {
-    return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-        Open
-      </span>
-    )
-  }
-  return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
-      Admins only
-    </span>
-  )
-}
-
 function RoleBadge({ role }: { role: MemberRole }) {
   if (role === 'ADMIN') {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">
         Admin
       </span>
     )
@@ -346,24 +351,26 @@ function RoleBadge({ role }: { role: MemberRole }) {
 }
 
 function RuleSummary({ rules }: { rules: AutoMembershipRule }) {
+  const fieldLabel: Record<string, string> = {
+    title: 'Title', organization: 'Organization', email: 'Email',
+  }
   const opLabel: Record<string, string> = {
     is: 'is', is_not: 'is not', is_one_of: 'is one of',
     is_not_one_of: 'is not one of', contains: 'contains', does_not_contain: 'does not contain',
   }
-  const conditionText = rules.conditions.map(c => {
-    const val = Array.isArray(c.value) ? c.value.join(', ') : c.value
-    return `${c.field} ${opLabel[c.operator] ?? c.operator} "${val}"`
-  })
   return (
     <div className="text-sm text-gray-700 space-y-1">
-      {conditionText.map((text, i) => (
-        <div key={i}>
-          {i > 0 && <span className="text-xs font-medium text-gray-400 uppercase mr-1">{rules.combinator}</span>}
-          {text}
-        </div>
-      ))}
-      <div className="text-xs text-gray-400 mt-1">
-        Triggers: on create/rehire{rules.triggerOnUpdate ? ', on update' : ''}
+      {rules.conditions.map((c, i) => {
+        const val = Array.isArray(c.value) ? c.value.join(', ') : c.value
+        return (
+          <div key={i} className="pl-3">
+            {i > 0 && <span className="text-xs font-medium text-gray-400 uppercase mr-1">{rules.combinator}</span>}
+            {fieldLabel[c.field] ?? c.field} {opLabel[c.operator] ?? c.operator} "{val}"
+          </div>
+        )
+      })}
+      <div className="text-xs text-gray-400 mt-1 pl-3">
+        Triggers: On Create/Rehire{rules.triggerOnUpdate ? ', On Update' : ''}
       </div>
     </div>
   )

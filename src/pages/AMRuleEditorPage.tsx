@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import AppHeader from '../components/AppHeader'
 import { getSession } from '../services/storage'
@@ -61,7 +61,9 @@ export default function AMRuleEditorPage() {
   const { groupId } = useParams<{ groupId: string }>()
   const navigate = useNavigate()
   const [group, setGroup] = useState<Group | null>(null)
-  const [conditions, setConditions] = useState<ConditionDraft[]>([])
+  const [conditions, setConditions] = useState<ConditionDraft[]>([
+    { id: 'c0', field: 'title', operator: 'is', value: '' },
+  ])
   const [combinator, setCombinator] = useState<'AND' | 'OR'>('AND')
   const [triggerOnUpdate, setTriggerOnUpdate] = useState(false)
   const [stagedPersonIds, setStagedPersonIds] = useState<Set<string>>(new Set())
@@ -90,10 +92,18 @@ export default function AMRuleEditorPage() {
   }, [groupId, navigate])
 
   // N27: Re-evaluate whenever conditions, combinator, or staged set changes
+  // Option B: if any people are already staged, auto-stage new matches too
   useEffect(() => {
     if (!groupId) return
     const valid = conditions.map(toCondition).filter((c): c is Condition => c !== null)
-    setEvalResult(evaluateRules(valid, combinator, groupId, stagedPersonIds))
+    const result = evaluateRules(valid, combinator, groupId, stagedPersonIds)
+    if (stagedPersonIds.size > 0 && result.missing.length > 0) {
+      const newStagedIds = new Set([...stagedPersonIds, ...result.missing.map(p => p.id)])
+      setStagedPersonIds(newStagedIds)
+      setEvalResult(evaluateRules(valid, combinator, groupId, newStagedIds))
+    } else {
+      setEvalResult(result)
+    }
   }, [conditions, combinator, stagedPersonIds, groupId])
 
   function handleAddCondition() {
@@ -101,7 +111,11 @@ export default function AMRuleEditorPage() {
   }
 
   function handleRemoveCondition(id: string) {
-    setConditions(prev => prev.filter(c => c.id !== id))
+    if (conditions.length === 1) {
+      setConditions([{ id, field: 'title', operator: 'is', value: '' }])
+    } else {
+      setConditions(prev => prev.filter(c => c.id !== id))
+    }
   }
 
   function handleConditionChange(id: string, updates: Partial<ConditionDraft>) {
@@ -150,11 +164,16 @@ export default function AMRuleEditorPage() {
   if (!group) return null
 
   const hasStagedAdds = evalResult.staged.length > 0
-  const missingAndStaged = [...evalResult.missing, ...evalResult.staged]
-  const conditionFields = [...new Set(
-    conditions.map(toCondition).filter((c): c is Condition => c !== null).map(c => c.field)
-  )]
-  const showPreview = conditions.length > 0
+  const conditionFields = [...new Set(conditions.map(c => c.field))]
+  const validConditions = conditions.map(toCondition).filter((c): c is Condition => c !== null)
+  const hasIncomplete = validConditions.length < conditions.length
+  const totalMatches = evalResult.missing.length + evalResult.staged.length + evalResult.current.length
+  const hasNoMatches = validConditions.length > 0 && totalMatches === 0
+  const allMatches = [
+    ...evalResult.missing.map(p => ({ person: p, status: 'not-member' as const })),
+    ...evalResult.staged.map(p => ({ person: p, status: 'queued' as const })),
+    ...evalResult.current.map(p => ({ person: p, status: 'member' as const })),
+  ]
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -174,12 +193,12 @@ export default function AMRuleEditorPage() {
           {/* Filters section */}
           <section className="mb-8">
             <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-4">Filters</h3>
-            <div className="space-y-2">
+            <div className="space-y-2 pl-3">
               {conditions.map((cond, idx) => (
                 <div key={cond.id}>
                   {/* U49: Combinator between condition rows (2+ conditions only) */}
                   {idx > 0 && (
-                    <div className="flex items-center my-2">
+                    <div className="flex items-center my-2 pl-4">
                       <button
                         onClick={() => setCombinator(c => c === 'AND' ? 'OR' : 'AND')}
                         className="text-xs font-semibold px-2.5 py-0.5 rounded border border-blue-300 text-blue-600 hover:bg-blue-50 transition-colors"
@@ -190,6 +209,7 @@ export default function AMRuleEditorPage() {
                   )}
                   <ConditionRow
                     condition={cond}
+                    isOnly={conditions.length === 1}
                     onChange={updates => handleConditionChange(cond.id, updates)}
                     onRemove={() => handleRemoveCondition(cond.id)}
                   />
@@ -205,64 +225,54 @@ export default function AMRuleEditorPage() {
           </section>
 
           {/* Preview section */}
-          {showPreview && (
-            <section className="mb-8">
-              <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-4">Preview</h3>
-              <div className="rounded-lg border border-gray-200 overflow-hidden divide-y divide-gray-100">
-
-                {/* Missing / Adding header (U52) */}
-                <div className="px-4 py-3 flex items-center justify-between bg-gray-50">
-                  <span className="text-sm font-medium text-gray-700">
-                    {hasStagedAdds
-                      ? `Adding (${evalResult.staged.length})`
-                      : `Missing Members (${evalResult.missing.length})`}
-                  </span>
-                  {hasStagedAdds ? (
-                    /* U80: ✕ button */
-                    <button
-                      onClick={handleClearStaged}
-                      className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
-                    >
-                      ✕
-                    </button>
-                  ) : evalResult.missing.length > 0 ? (
-                    /* U54: Add Now button */
-                    <button
-                      onClick={handleAddNow}
-                      className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
-                    >
-                      Add Now
-                    </button>
-                  ) : null}
+          <section className="mb-8">
+            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-4">Preview</h3>
+            <div className="rounded-lg border border-gray-200 overflow-hidden divide-y divide-gray-100">
+              {validConditions.length === 0 ? (
+                <div className="px-4 py-8 text-center text-sm text-gray-400">
+                  Set a filter to see matches
                 </div>
-
-                {/* Missing / staged rows (U53) */}
-                {missingAndStaged.length === 0 ? (
-                  <div className="px-4 py-3 text-sm text-gray-400">No missing members.</div>
-                ) : (
-                  missingAndStaged.map(person => (
-                    <PreviewRow key={person.id} person={person} fields={conditionFields} />
-                  ))
-                )}
-
-                {/* U81: Current Members header */}
-                <div className="px-4 py-3 bg-gray-50">
-                  <span className="text-sm font-medium text-gray-700">
-                    Current Members ({evalResult.current.length})
-                  </span>
+              ) : hasNoMatches ? (
+                <div className="px-4 py-8 text-center text-sm text-gray-400">
+                  No people match these rules — try adjusting your filters
                 </div>
+              ) : (
+                <>
+                  {/* Matches header */}
+                  <div className="px-4 py-3 flex items-center justify-between bg-gray-50">
+                    <span className="text-sm font-medium text-gray-700">
+                      Matches ({totalMatches})
+                    </span>
+                    {hasStagedAdds ? (
+                      <span className="relative group inline-flex items-center">
+                        <button
+                          onClick={handleClearStaged}
+                          className="text-gray-400 hover:text-red-500 transition-colors text-sm leading-none"
+                        >
+                          ✕
+                        </button>
+                        <span className="absolute right-full top-1/2 -translate-y-1/2 mr-2 px-2 py-1 text-xs text-white bg-gray-700 rounded whitespace-nowrap hidden group-hover:block pointer-events-none">
+                          Clear queue
+                        </span>
+                      </span>
+                    ) : evalResult.missing.length > 0 ? (
+                      <button
+                        onClick={handleAddNow}
+                        className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                      >
+                        + Add Non-Members
+                      </button>
+                    ) : null}
+                  </div>
 
-                {/* Current member rows (U53) */}
-                {evalResult.current.length === 0 ? (
-                  <div className="px-4 py-3 text-sm text-gray-400">No current members match these rules.</div>
-                ) : (
-                  evalResult.current.map(person => (
-                    <PreviewRow key={person.id} person={person} fields={conditionFields} />
-                  ))
-                )}
-              </div>
-            </section>
-          )}
+                  {/* Unified matches list */}
+                  {allMatches.map(({ person, status }) => (
+                    <PreviewRow key={person.id} person={person} fields={conditionFields} status={status} />
+                  ))}
+                </>
+              )}
+            </div>
+          </section>
 
           {/* Triggers section */}
           <section className="mb-8">
@@ -271,7 +281,7 @@ export default function AMRuleEditorPage() {
               {/* U50: On Create/Rehire — always on, disabled */}
               <label className="flex items-center gap-3">
                 <input type="checkbox" checked disabled className="opacity-50" />
-                <span className="text-sm text-gray-500">On Create / Rehire (always on)</span>
+                <span className="text-sm text-gray-500">On Create/Rehire</span>
               </label>
               {/* U51: On Update — toggleable */}
               <label className="flex items-center gap-3 cursor-pointer">
@@ -293,12 +303,20 @@ export default function AMRuleEditorPage() {
             >
               Cancel
             </button>
-            <button
-              onClick={handleSave}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-            >
-              Save Rules
-            </button>
+            <span className="flex-1 relative group">
+              <button
+                onClick={handleSave}
+                disabled={hasIncomplete}
+                className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Save Rules
+              </button>
+              {hasIncomplete && (
+                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-xs text-white bg-gray-700 rounded whitespace-nowrap hidden group-hover:block pointer-events-none">
+                  Remove empty filters to save
+                </span>
+              )}
+            </span>
           </div>
         </div>
       </main>
@@ -306,14 +324,132 @@ export default function AMRuleEditorPage() {
   )
 }
 
-// U53: Preview row — name + values of referenced condition fields
-function PreviewRow({ person, fields }: { person: Person; fields: Field[] }) {
+type MatchStatus = 'member' | 'queued' | 'not-member'
+
+// U53: Preview row — name + field values + membership status badge
+function PreviewRow({ person, fields, status }: { person: Person; fields: Field[]; status: MatchStatus }) {
+  const badge = {
+    'member':     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700 shrink-0">Member</span>,
+    'queued':     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700 shrink-0">Queued Member</span>,
+    'not-member': <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-500 shrink-0">Non-Member</span>,
+  }[status]
+
   return (
-    <div className="px-4 py-2 text-sm text-gray-700 flex items-center gap-2 flex-wrap">
-      <span className="font-medium">{person.name}</span>
-      {fields.map(field => (
-        <span key={field} className="text-gray-400">· {getPersonFieldValue(person, field)}</span>
-      ))}
+    <div className="px-4 py-2 text-sm text-gray-700 flex items-center justify-between gap-2">
+      <div className="flex items-center gap-2 flex-wrap min-w-0">
+        <span className="font-medium">{person.name}</span>
+        {fields.map(field => (
+          <span key={field} className="text-gray-400">· {getPersonFieldValue(person, field)}</span>
+        ))}
+      </div>
+      {badge}
+    </div>
+  )
+}
+
+function PillSelect({ selected, options, onChange }: {
+  selected: string[]
+  options: string[]
+  onChange: (v: string[]) => void
+}) {
+  const [query, setQuery] = useState('')
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const available = options.filter(o => !selected.includes(o) && o.toLowerCase().includes(query.toLowerCase()))
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  return (
+    <div ref={containerRef} className="relative w-full">
+      <div className="min-h-[34px] px-2 py-1 border border-gray-300 rounded-lg bg-white flex flex-wrap gap-1 items-center focus-within:ring-2 focus-within:ring-blue-500">
+        {selected.map(val => (
+          <span key={val} className="inline-flex items-center gap-1 pl-2 pr-1 py-0.5 rounded bg-blue-100 text-blue-800 text-xs font-medium">
+            {val}
+            <button
+              onMouseDown={e => { e.preventDefault(); onChange(selected.filter(v => v !== val)) }}
+              className="text-blue-400 hover:text-blue-800 leading-none"
+            >
+              ×
+            </button>
+          </span>
+        ))}
+        <input
+          type="text"
+          value={query}
+          onChange={e => { setQuery(e.target.value); setOpen(true) }}
+          onFocus={() => setOpen(true)}
+          placeholder={selected.length === 0 ? 'Select values…' : ''}
+          className="flex-1 min-w-[80px] text-sm outline-none"
+        />
+      </div>
+      {open && available.length > 0 && (
+        <ul className="absolute z-10 w-full mt-1 max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg">
+          {available.map(opt => (
+            <li
+              key={opt}
+              onMouseDown={() => { onChange([...selected, opt]); setQuery('') }}
+              className="px-3 py-1.5 text-sm text-gray-700 cursor-pointer hover:bg-blue-50"
+            >
+              {opt}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+function Combobox({ value, options, onChange, placeholder }: {
+  value: string
+  options: string[]
+  onChange: (v: string) => void
+  placeholder?: string
+}) {
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const filtered = options.filter(o => o.toLowerCase().includes(value.toLowerCase()))
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  return (
+    <div ref={containerRef} className="relative w-full">
+      <input
+        type="text"
+        value={value}
+        onChange={e => { onChange(e.target.value); setOpen(true) }}
+        onFocus={() => setOpen(true)}
+        placeholder={placeholder}
+        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      {open && filtered.length > 0 && (
+        <ul className="absolute z-10 w-full mt-1 max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg">
+          {filtered.map(opt => (
+            <li
+              key={opt}
+              onMouseDown={() => { onChange(opt); setOpen(false) }}
+              className="px-3 py-1.5 text-sm text-gray-700 cursor-pointer hover:bg-blue-50"
+            >
+              {opt}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
@@ -321,11 +457,12 @@ function PreviewRow({ person, fields }: { person: Person; fields: Field[] }) {
 // U44-U47: A single condition row
 interface ConditionRowProps {
   condition: ConditionDraft
+  isOnly: boolean
   onChange: (updates: Partial<ConditionDraft>) => void
   onRemove: () => void
 }
 
-function ConditionRow({ condition, onChange, onRemove }: ConditionRowProps) {
+function ConditionRow({ condition, isOnly, onChange, onRemove }: ConditionRowProps) {
   const operatorOptions = condition.field === 'email' ? OPERATORS_EMAIL : OPERATORS_ALL
   const showMultiSelect = isMultiValueOp(condition.operator) && condition.field !== 'email'
   const fieldOptions = getFieldOptions(condition.field)
@@ -355,44 +492,36 @@ function ConditionRow({ condition, onChange, onRemove }: ConditionRowProps) {
         ))}
       </select>
 
-      {/* U46: Value input — checkboxes for is_one_of, text otherwise */}
+      {/* U46: Value input — checkboxes for is_one_of, combobox/text otherwise */}
       <div className="flex-1">
         {showMultiSelect ? (
-          <div className="max-h-36 overflow-y-auto p-2 border border-gray-300 rounded-lg bg-white space-y-1">
-            {fieldOptions.map(opt => (
-              <label key={opt} className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
-                <input
-                  type="checkbox"
-                  checked={selectedValues.includes(opt)}
-                  onChange={e => {
-                    const next = e.target.checked
-                      ? [...selectedValues, opt]
-                      : selectedValues.filter(v => v !== opt)
-                    onChange({ value: next })
-                  }}
-                />
-                {opt}
-              </label>
-            ))}
-          </div>
+          <PillSelect
+            selected={selectedValues}
+            options={fieldOptions}
+            onChange={v => onChange({ value: v })}
+          />
         ) : (
-          <input
-            type="text"
+          <Combobox
             value={typeof condition.value === 'string' ? condition.value : ''}
-            onChange={e => onChange({ value: e.target.value })}
+            options={fieldOptions}
+            onChange={v => onChange({ value: v })}
             placeholder={`Enter ${condition.field}…`}
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         )}
       </div>
 
-      {/* U47: Remove button */}
-      <button
-        onClick={onRemove}
-        className="text-gray-400 hover:text-red-500 transition-colors text-xl leading-none pt-1"
-      >
-        ×
-      </button>
+      {/* U47: Remove / clear button */}
+      <span className="relative group inline-flex items-center">
+        <button
+          onClick={onRemove}
+          className="text-gray-400 hover:text-red-500 transition-colors text-sm leading-none"
+        >
+          ✕
+        </button>
+        <span className="absolute right-full top-1/2 -translate-y-1/2 mr-2 px-2 py-1 text-xs text-white bg-gray-700 rounded whitespace-nowrap hidden group-hover:block pointer-events-none">
+          {isOnly ? 'Clear filter' : 'Remove filter'}
+        </span>
+      </span>
     </div>
   )
 }

@@ -19,6 +19,9 @@ export default function SearchPage() {
     setResults(performSearch(initialQuery))
   }, [initialQuery, navigate])
 
+  const people = results.filter(r => r.type === 'person')
+  const groups = results.filter(r => r.type === 'group')
+
   return (
     <div className="min-h-screen bg-gray-50">
       <AppHeader />
@@ -30,36 +33,60 @@ export default function SearchPage() {
             </p>
           )}
 
-          {results.length === 0 && initialQuery && (
-            <p className="text-sm text-gray-400">No results found.</p>
+          {!initialQuery && (
+            <p className="text-sm text-gray-400">Enter a search query above.</p>
           )}
 
-          {results.length > 0 && (
-            <ul className="space-y-2">
-              {results.map(result =>
-                result.type === 'person' ? (
-                  <li key={result.person.id}>
-                    <button
-                      onClick={() => navigate(`/profile/${result.person.id}`)}
-                      className="w-full text-left px-4 py-3 rounded-lg border border-gray-100 bg-gray-50 hover:bg-blue-50 hover:border-blue-200 transition-colors"
-                    >
-                      <span className="text-sm font-medium text-gray-900">{result.person.name}</span>
-                      <span className="text-sm text-gray-500 ml-2">· {result.person.title} · {result.person.organization}</span>
-                    </button>
-                  </li>
+          {initialQuery && (
+            <div className="space-y-8">
+              {/* People section */}
+              <section>
+                <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">
+                  People
+                </h3>
+                {people.length === 0 ? (
+                  <p className="text-sm text-gray-400">No people found.</p>
                 ) : (
-                  <li key={result.group.id}>
-                    <button
-                      onClick={() => navigate(`/group/${result.group.id}`)}
-                      className="w-full text-left px-4 py-3 rounded-lg border border-gray-100 bg-gray-50 hover:bg-blue-50 hover:border-blue-200 transition-colors"
-                    >
-                      <span className="text-sm font-medium text-gray-900">{result.group.name}</span>
-                      <span className="text-sm text-gray-500 ml-2">· {result.group.description}</span>
-                    </button>
-                  </li>
-                )
-              )}
-            </ul>
+                  <ul className="space-y-2">
+                    {people.map(r => (
+                      <li key={r.person.id}>
+                        <button
+                          onClick={() => navigate(`/profile/${r.person.id}`)}
+                          className="w-full text-left px-4 py-3 rounded-lg border border-gray-100 bg-gray-50 hover:bg-blue-50 hover:border-blue-200 transition-colors"
+                        >
+                          <span className="text-sm font-medium text-gray-900">{r.person.name}</span>
+                          <span className="text-sm text-gray-500 ml-2">· {r.person.title} · {r.person.organization}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+
+              {/* Groups section */}
+              <section>
+                <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">
+                  Groups
+                </h3>
+                {groups.length === 0 ? (
+                  <p className="text-sm text-gray-400">No groups found.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {groups.map(r => (
+                      <li key={r.group.id}>
+                        <button
+                          onClick={() => navigate(`/group/${r.group.id}`)}
+                          className="w-full text-left px-4 py-3 rounded-lg border border-gray-100 bg-gray-50 hover:bg-blue-50 hover:border-blue-200 transition-colors"
+                        >
+                          <span className="text-sm font-medium text-gray-900">{r.group.name}</span>
+                          <span className="text-sm text-gray-500 ml-2">· {r.group.description}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            </div>
           )}
         </div>
       </main>
