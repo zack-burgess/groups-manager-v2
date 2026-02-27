@@ -1,6 +1,7 @@
 import type { Person, PersonStatus } from '../types'
 import { getPeople, savePeople, getMemberships, saveMemberships, getChangeEvents, saveChangeEvents, saveSession, clearSession } from './storage'
 import { writeChangeEvent } from './groups'
+import { evaluateAutoMembershipOnCreate, evaluateAutoMembershipOnUpdate } from './rules'
 
 // N1: Case-insensitive name lookup
 export function lookupPerson(name: string): Person | null {
@@ -38,6 +39,7 @@ export function createEmployee(name: string, email: string, title: string, org: 
   savePeople([...people, newPerson])
   if (setSession) saveSession({ personId: id })
   writeEmployeeCreatedEvent(id, name.trim())
+  evaluateAutoMembershipOnCreate(id)
   return newPerson
 }
 
@@ -112,7 +114,7 @@ export function rehireEmployee(id: string): void {
     eventType: 'EMPLOYEE_REHIRED',
     payload: { personId: id, personName: person?.name ?? id },
   })
-  // N38: evaluateAutoMembershipOnCreate — stub, activated in V8
+  evaluateAutoMembershipOnCreate(id)
 }
 
 // N40: Load employee for update
@@ -136,7 +138,7 @@ export function updateEmployee(id: string, name: string, title: string, org: str
     eventType: 'EMPLOYEE_UPDATED',
     payload: { personId: id, personName: name.trim() },
   })
-  // N43: evaluateAutoMembershipOnUpdate — stub, activated in V8
+  evaluateAutoMembershipOnUpdate(id)
   return updated
 }
 

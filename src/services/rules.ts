@@ -64,6 +64,46 @@ function matchesCondition(person: Person, condition: Condition): boolean {
   }
 }
 
+// N38: Evaluate all groups with rules and add person to any they match — called on Create/Rehire
+export function evaluateAutoMembershipOnCreate(personId: string): void {
+  const person = getPeople().find(p => p.id === personId)
+  if (!person) return
+  const rules = getAutoMembershipRules()
+  for (const rule of rules) {
+    applyRuleForPerson(person, rule)
+  }
+}
+
+// N43: Evaluate groups where triggerOnUpdate=true and add person if they match — called on Update
+export function evaluateAutoMembershipOnUpdate(personId: string): void {
+  const person = getPeople().find(p => p.id === personId)
+  if (!person) return
+  const rules = getAutoMembershipRules().filter(r => r.triggerOnUpdate)
+  for (const rule of rules) {
+    applyRuleForPerson(person, rule)
+  }
+}
+
+function applyRuleForPerson(person: Person, rule: AutoMembershipRule): void {
+  if (!matchesConditions(person, rule.conditions, rule.combinator)) return
+  const memberships = getMemberships()
+  if (memberships.some(m => m.groupId === rule.groupId && m.personId === person.id)) return
+  saveMemberships([...memberships, {
+    groupId: rule.groupId,
+    personId: person.id,
+    role: 'MEMBER' as const,
+    addedAt: new Date().toISOString(),
+    addedBy: 'AUTOMATIC_MEMBERSHIP',
+  }])
+  writeChangeEvent({
+    groupId: rule.groupId,
+    actorType: 'AUTOMATIC_MEMBERSHIP',
+    actorId: null,
+    eventType: 'MEMBER_ADDED',
+    payload: { personId: person.id, personName: person.name },
+  })
+}
+
 // N30: Upsert rules in S5, promote staged adds (S11→S3), write change events (N29)
 export function saveRules(
   groupId: string,
