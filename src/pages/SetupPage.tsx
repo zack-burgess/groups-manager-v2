@@ -36,7 +36,7 @@ export default function SetupPage() {
 
   function handleComplete() {
     if (!isValid) return
-    const email = fromAdmin ? derivedEmail : (state?.email ?? derivedEmail)
+    const email = derivedEmail
     // Detect first self-signup: no person with a timestamp-based ID exists yet
     const isFirstSignup = !fromAdmin && getPeople().every(p => Number(p.id.slice(1)) <= 100)
     // In admin mode: don't save session, navigate back to /employees
@@ -93,7 +93,7 @@ export default function SetupPage() {
           <div>
             <p className="text-sm font-medium text-gray-700 mb-1">Email</p>
             <p className="text-gray-500 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm">
-              {fromAdmin ? derivedEmail : state?.email}
+              {derivedEmail}
             </p>
           </div>
 
