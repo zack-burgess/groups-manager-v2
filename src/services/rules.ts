@@ -70,7 +70,7 @@ export function evaluateAutoMembershipOnCreate(personId: string): void {
   if (!person) return
   const rules = getAutoMembershipRules()
   for (const rule of rules) {
-    applyRuleForPerson(person, rule)
+    applyRuleForPerson(person, rule, 'CREATE_REHIRE')
   }
 }
 
@@ -80,11 +80,11 @@ export function evaluateAutoMembershipOnUpdate(personId: string): void {
   if (!person) return
   const rules = getAutoMembershipRules().filter(r => r.triggerOnUpdate)
   for (const rule of rules) {
-    applyRuleForPerson(person, rule)
+    applyRuleForPerson(person, rule, 'UPDATE')
   }
 }
 
-function applyRuleForPerson(person: Person, rule: AutoMembershipRule): void {
+function applyRuleForPerson(person: Person, rule: AutoMembershipRule, trigger: 'CREATE_REHIRE' | 'UPDATE'): void {
   if (!matchesConditions(person, rule.conditions, rule.combinator)) return
   const memberships = getMemberships()
   if (memberships.some(m => m.groupId === rule.groupId && m.personId === person.id)) return
@@ -100,7 +100,7 @@ function applyRuleForPerson(person: Person, rule: AutoMembershipRule): void {
     actorType: 'AUTOMATIC_MEMBERSHIP',
     actorId: null,
     eventType: 'MEMBER_ADDED',
-    payload: { personId: person.id, personName: person.name },
+    payload: { personId: person.id, personName: person.name, trigger },
   })
 }
 
