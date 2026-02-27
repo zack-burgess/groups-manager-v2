@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { getSession } from '../services/storage'
+import { getSession, resetDemo } from '../services/storage'
 import { logout } from '../services/people'
 
 export default function AppHeader() {
@@ -86,15 +86,15 @@ export default function AppHeader() {
                     Manage Employees
                   </button>
                   <button
-                    disabled
-                    className="w-full text-left px-4 py-2 text-sm text-gray-400 cursor-default"
+                    onClick={() => { resetDemo(); setSettingsOpen(false); navigate('/') }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     Reset Demo
                   </button>
                   <hr className="my-1 border-gray-100" />
                   <button
-                    disabled
-                    className="w-full text-left px-4 py-2 text-sm text-gray-400 cursor-default"
+                    onClick={() => { setSettingsOpen(false); navigate('/about') }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     About
                   </button>

@@ -8,6 +8,7 @@ import GroupDetailPage from './pages/GroupDetailPage'
 import EmployeeManagementPage from './pages/EmployeeManagementPage'
 import CreateEditGroupPage from './pages/CreateEditGroupPage'
 import AMRuleEditorPage from './pages/AMRuleEditorPage'
+import AboutPage from './pages/AboutPage'
 
 initializeStorage()
 
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/group/new" element={<CreateEditGroupPage />} />
         <Route path="/group/:groupId/edit" element={<CreateEditGroupPage />} />
         <Route path="/group/:groupId/rules" element={<AMRuleEditorPage />} />
+        <Route path="/about" element={<AboutPage />} />
       </Routes>
     </BrowserRouter>
   )

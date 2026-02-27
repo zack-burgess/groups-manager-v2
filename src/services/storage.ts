@@ -74,6 +74,16 @@ export function saveAutoMembershipRules(rules: AutoMembershipRule[]): void {
   write(KEYS.autoMembershipRules, rules)
 }
 
+// N39: Reset demo — clear all data and re-seed from S8
+export function resetDemo(): void {
+  Object.values(KEYS).forEach(key => localStorage.removeItem(key))
+  write(KEYS.people, seedData.people)
+  write(KEYS.groups, seedData.groups)
+  write(KEYS.memberships, seedData.memberships)
+  write(KEYS.changeEvents, seedData.changeEvents)
+  write(KEYS.autoMembershipRules, seedData.autoMembershipRules)
+}
+
 // S9: session
 export function getSession(): Session | null {
   return read<Session>(KEYS.session)
