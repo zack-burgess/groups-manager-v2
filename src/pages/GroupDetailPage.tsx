@@ -415,7 +415,9 @@ function HistoryRow({ event }: { event: ChangeEvent }) {
 
   const descriptions: Record<string, string> = {
     MEMBER_ADDED: `${payload.personName ?? 'Someone'} added by ${actorLabel}`,
-    MEMBER_REMOVED: `${payload.personName ?? 'Someone'} removed by ${event.actorId ? actorLabel : 'system'}`,
+    MEMBER_REMOVED: event.actorId === null
+      ? `${payload.personName ?? 'Someone'} removed on Suspend`
+      : `${payload.personName ?? 'Someone'} removed by ${actorLabel}`,
     ROLE_CHANGED: `${payload.personName ?? 'Someone'} role changed to ${payload.newRole?.toLowerCase() ?? '?'} by ${actorLabel}`,
     SETTING_CHANGED: `Membership setting changed to ${payload.newSetting ?? '?'} by ${actorLabel}`,
     EMPLOYEE_CREATED: `Employee created by ${actorLabel}`,
