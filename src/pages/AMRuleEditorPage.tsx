@@ -236,7 +236,8 @@ export default function AMRuleEditorPage() {
           {/* Preview section */}
           <section className="mb-8">
             <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-4">Preview</h3>
-            <div className="rounded-lg border border-gray-200 overflow-hidden divide-y divide-gray-100">
+            <div className="rounded-lg border border-gray-200 overflow-hidden h-[200px]">
+              <div className="divide-y divide-gray-100 h-full overflow-y-auto">
               {validConditions.length === 0 ? (
                 <div className="px-4 py-8 text-center text-sm text-gray-400">
                   Set a filter to see matches
@@ -284,6 +285,7 @@ export default function AMRuleEditorPage() {
                   ))}
                 </>
               )}
+              </div>
             </div>
           </section>
 
