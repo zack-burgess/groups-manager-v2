@@ -401,9 +401,8 @@ function RuleSummary({ rules }: { rules: AutoMembershipRule }) {
 
 function HistoryRow({ event }: { event: ChangeEvent }) {
   const payload = event.payload as Record<string, string>
-  const triggerLabel = payload.trigger === 'UPDATE' ? 'Update' : 'Create/Rehire'
   const actorLabel = event.actorType === 'AUTOMATIC_MEMBERSHIP'
-    ? `${triggerLabel} by Auto-Membership`
+    ? 'Auto-Membership'
     : event.actorType === 'GROUP_CREATED'
       ? 'Creating Group'
       : event.actorId
@@ -416,9 +415,7 @@ function HistoryRow({ event }: { event: ChangeEvent }) {
 
   const descriptions: Record<string, string> = {
     MEMBER_ADDED: `${payload.personName ?? 'Someone'} added by ${actorLabel}`,
-    MEMBER_REMOVED: event.actorId === null
-      ? `${payload.personName ?? 'Someone'} removed on Suspension`
-      : `${payload.personName ?? 'Someone'} removed by ${actorLabel}`,
+    MEMBER_REMOVED: `${payload.personName ?? 'Someone'} removed by ${event.actorId ? actorLabel : 'system'}`,
     ROLE_CHANGED: `${payload.personName ?? 'Someone'} role changed to ${payload.newRole?.toLowerCase() ?? '?'} by ${actorLabel}`,
     SETTING_CHANGED: `Membership setting changed to ${payload.newSetting ?? '?'} by ${actorLabel}`,
     EMPLOYEE_CREATED: `Employee created by ${actorLabel}`,
