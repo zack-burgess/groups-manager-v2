@@ -39,7 +39,14 @@ export default function GroupDetailPage() {
     const freshGroup = loadGroup(groupId)
     if (!freshGroup) return
     setGroup(freshGroup)
-    setMembers(loadGroupMembers(groupId))
+    const freshMembers = loadGroupMembers(groupId)
+    setMembers(prev => {
+      const freshById = Object.fromEntries(freshMembers.map(m => [m.person.id, m]))
+      const updated = prev.map(m => freshById[m.person.id]).filter(Boolean) as Member[]
+      const existingIds = new Set(prev.map(m => m.person.id))
+      const added = freshMembers.filter(m => !existingIds.has(m.person.id))
+      return [...updated, ...added]
+    })
     setHistory(loadGroupHistory(groupId))
   }, [groupId])
 
@@ -50,7 +57,14 @@ export default function GroupDetailPage() {
     const found = loadGroup(groupId)
     if (!found) { navigate('/', { replace: true }); return }
     setGroup(found)
-    setMembers(loadGroupMembers(groupId))
+    const initialMembers = loadGroupMembers(groupId)
+    const sorted = [...initialMembers].sort((a, b) => {
+      if (a.role !== b.role) return a.role === 'ADMIN' ? -1 : 1
+      if (a.person.id === session.personId) return -1
+      if (b.person.id === session.personId) return 1
+      return 0
+    })
+    setMembers(sorted)
     setHistory(loadGroupHistory(groupId))
     setRules(loadGroupRules(groupId))
     setCurrentPersonId(session.personId)
@@ -193,12 +207,7 @@ export default function GroupDetailPage() {
           {/* Members tab */}
           {tab === 'members' && (
             <ul className="space-y-2">
-              {[...members].sort((a, b) => {
-                if (a.role !== b.role) return a.role === 'ADMIN' ? -1 : 1
-                if (a.person.id === currentPersonId) return -1
-                if (b.person.id === currentPersonId) return 1
-                return 0
-              }).map(({ person, role }) => {
+              {members.map(({ person, role }) => {
                 const isLastAdmin = role === 'ADMIN' && adminCount === 1
                 const canRemoveThis = (isAdmin || person.id === currentPersonId) && !isLastAdmin
                 const canPromoteDemote = isAdmin && person.id !== currentPersonId
