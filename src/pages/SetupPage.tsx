@@ -18,8 +18,8 @@ export default function SetupPage() {
   const fromAdmin = state?.fromAdmin ?? false
 
   const [name, setName] = useState(state?.name ?? '')
-  const [title, setTitle] = useState(PREDEFINED_TITLES[0])
-  const [org, setOrg] = useState(PREDEFINED_ORGS[0])
+  const [title, setTitle] = useState('Hiring Manager')
+  const [org, setOrg] = useState('Human Resources')
 
   useEffect(() => {
     // In admin mode a blank name is fine — admin will fill it in.
