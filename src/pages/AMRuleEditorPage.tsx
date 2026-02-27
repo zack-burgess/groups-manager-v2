@@ -159,7 +159,7 @@ export default function AMRuleEditorPage() {
 
   // N31: Cancel — discard all draft state (S11 is just React state, no cleanup needed)
   function handleCancel() {
-    navigate(`/group/${groupId}`)
+    navigate(`/group/${groupId}`, { replace: true })
   }
 
   if (!group) return null
@@ -189,7 +189,15 @@ export default function AMRuleEditorPage() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-1">Auto-membership Rules</h2>
-          <p className="text-sm text-gray-500 mb-8">{group.name}</p>
+          <p className="text-sm text-gray-500 mb-8 flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            {group.name}
+          </p>
 
           {/* Filters section */}
           <section className="mb-8">
@@ -241,14 +249,18 @@ export default function AMRuleEditorPage() {
                 <>
                   {/* Matches header */}
                   <div className="px-4 py-3 flex items-center justify-between bg-gray-50">
-                    <span className="text-sm font-medium text-gray-700">
+                    <span className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                      <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
                       Matches ({totalMatches})
                     </span>
                     {hasStagedAdds ? (
                       <span className="relative group inline-flex items-center">
                         <button
                           onClick={handleClearStaged}
-                          className="text-gray-400 hover:text-red-500 transition-colors text-sm leading-none"
+                          className="text-gray-400 hover:text-red-500 transition-colors text-sm leading-none inline-flex items-center"
                         >
                           ✕
                         </button>
@@ -338,6 +350,10 @@ function PreviewRow({ person, fields, status }: { person: Person; fields: Field[
   return (
     <div className="px-4 py-2 text-sm text-gray-700 flex items-center justify-between gap-2">
       <div className="flex items-center gap-2 flex-wrap min-w-0">
+        <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
         <span className="font-medium">{person.name}</span>
         {fields.map(field => (
           <span key={field} className="text-gray-400">· {getPersonFieldValue(person, field)}</span>
@@ -470,7 +486,7 @@ function ConditionRow({ condition, isOnly, onChange, onRemove }: ConditionRowPro
   const selectedValues = Array.isArray(condition.value) ? condition.value : []
 
   return (
-    <div className="flex items-start gap-2 p-3 rounded-lg border border-gray-200 bg-gray-50">
+    <div className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 bg-gray-50">
       {/* U44: Field selector */}
       <select
         value={condition.field}
@@ -515,7 +531,7 @@ function ConditionRow({ condition, isOnly, onChange, onRemove }: ConditionRowPro
       <span className="relative group inline-flex items-center">
         <button
           onClick={onRemove}
-          className="text-gray-400 hover:text-red-500 transition-colors text-sm leading-none"
+          className="text-gray-400 hover:text-red-500 transition-colors text-sm leading-none inline-flex items-center"
         >
           ✕
         </button>

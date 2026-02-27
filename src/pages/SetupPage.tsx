@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { PREDEFINED_TITLES, PREDEFINED_ORGS } from '../data/lookups'
 import { createEmployee, generateEmail } from '../services/people'
+import { getPeople, getGroups } from '../services/storage'
+import { addMember, changeMemberRole } from '../services/groups'
 
 interface SetupLocationState {
   name: string
@@ -16,8 +18,8 @@ export default function SetupPage() {
   const fromAdmin = state?.fromAdmin ?? false
 
   const [name, setName] = useState(state?.name ?? '')
-  const [title, setTitle] = useState('')
-  const [org, setOrg] = useState('')
+  const [title, setTitle] = useState(fromAdmin ? '' : 'Hiring Manager')
+  const [org, setOrg] = useState(fromAdmin ? '' : 'Human Resources')
 
   useEffect(() => {
     // In admin mode a blank name is fine — admin will fill it in.
@@ -35,8 +37,17 @@ export default function SetupPage() {
   function handleComplete() {
     if (!isValid) return
     const email = fromAdmin ? derivedEmail : (state?.email ?? derivedEmail)
+    // Detect first self-signup: no person with a timestamp-based ID exists yet
+    const isFirstSignup = !fromAdmin && getPeople().every(p => Number(p.id.slice(1)) <= 100)
     // In admin mode: don't save session, navigate back to /employees
     const person = createEmployee(name, email, title, org, !fromAdmin)
+    if (isFirstSignup) {
+      const recruitingGroup = getGroups().find(g => g.name === 'Recruiting')
+      if (recruitingGroup) {
+        addMember(recruitingGroup.id, person.id, person.id)
+        changeMemberRole(recruitingGroup.id, person.id, 'ADMIN', person.id)
+      }
+    }
     if (fromAdmin) {
       navigate('/employees', { replace: true })
     } else {
@@ -89,28 +100,38 @@ export default function SetupPage() {
 
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-            <select
-              id="title"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-            >
-              <option value="">Select a title…</option>
-              {PREDEFINED_TITLES.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
+            <div className="relative">
+              <select
+                id="title"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                className="w-full appearance-none pl-3 pr-10 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                <option value="">Select a title…</option>
+                {PREDEFINED_TITLES.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
           </div>
 
           <div>
             <label htmlFor="org" className="block text-sm font-medium text-gray-700 mb-1">Organization</label>
-            <select
-              id="org"
-              value={org}
-              onChange={e => setOrg(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-            >
-              <option value="">Select an organization…</option>
-              {PREDEFINED_ORGS.map(o => <option key={o} value={o}>{o}</option>)}
-            </select>
+            <div className="relative">
+              <select
+                id="org"
+                value={org}
+                onChange={e => setOrg(e.target.value)}
+                className="w-full appearance-none pl-3 pr-10 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                <option value="">Select an organization…</option>
+                {PREDEFINED_ORGS.map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
           </div>
 
           <div className="flex gap-3 pt-2">

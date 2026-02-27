@@ -11,6 +11,7 @@ export const PREDEFINED_TITLES = [
   'Marketing Manager',
   'Account Executive',
   'HR Manager',
+  'Hiring Manager',
   'Legal Counsel',
 ]
 

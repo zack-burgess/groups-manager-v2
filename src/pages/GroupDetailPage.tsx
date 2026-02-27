@@ -137,6 +137,12 @@ export default function GroupDetailPage() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           {/* Group header */}
           <div className="flex items-center gap-2 mb-2">
+            <svg className="w-5 h-5 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
             <h2 className="text-xl font-semibold text-gray-900">{group.name}</h2>
             {isAdmin && (
               <button
@@ -177,12 +183,16 @@ export default function GroupDetailPage() {
           <div className="flex gap-4 border-b border-gray-200 mb-4">
             <button
               onClick={() => setTab('members')}
-              className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
+              className={`pb-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-1.5 ${
                 tab === 'members'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-900'
               }`}
             >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
               Members ({members.length})
             </button>
             <button
@@ -216,6 +226,10 @@ export default function GroupDetailPage() {
                     key={person.id}
                     className="flex items-center gap-3 px-4 py-2 rounded-lg border border-gray-100 bg-gray-50 text-sm"
                   >
+                    <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
                     {/* Name · Title — one line */}
                     <button
                       onClick={() => navigate(`/profile/${person.id}`)}
@@ -399,7 +413,9 @@ function HistoryRow({ event }: { event: ChangeEvent }) {
   const payload = event.payload as Record<string, string>
   const descriptions: Record<string, string> = {
     MEMBER_ADDED: `${payload.personName ?? 'Someone'} added by ${actorLabel}`,
-    MEMBER_REMOVED: `${payload.personName ?? 'Someone'} removed by ${actorLabel}`,
+    MEMBER_REMOVED: event.actorId === null
+      ? `${payload.personName ?? 'Someone'} removed on Suspension`
+      : `${payload.personName ?? 'Someone'} removed by ${actorLabel}`,
     ROLE_CHANGED: `${payload.personName ?? 'Someone'} role changed to ${payload.newRole?.toLowerCase() ?? '?'} by ${actorLabel}`,
     SETTING_CHANGED: `Membership setting changed to ${payload.newSetting ?? '?'} by ${actorLabel}`,
     EMPLOYEE_CREATED: `Employee created by ${actorLabel}`,

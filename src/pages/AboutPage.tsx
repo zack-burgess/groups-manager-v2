@@ -25,9 +25,9 @@ export default function AboutPage() {
 
           <div className="text-sm text-gray-700 space-y-3">
             <p>
-              Groups Manager is a demo application for managing team groups and memberships —
-              including role-based access, membership settings, auto-membership rules, and a full
-              change history audit trail.
+              Groups Manager is a demo application for managing groups and membership. Configure Auto-membership
+              for a group, Manage Employees (top right), and see them added to your group if they match
+              your configuration!
             </p>
             <p>
               Built with React, TypeScript, Tailwind CSS, and client-side localStorage. No backend required.

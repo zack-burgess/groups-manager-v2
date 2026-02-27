@@ -53,13 +53,15 @@ export default function ProfilePage() {
           </button>
         )}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">{person.name}</h2>
+          <div className="flex items-center gap-2 mb-6">
+            <svg className="w-5 h-5 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <h2 className="text-xl font-semibold text-gray-900">{person.name}</h2>
+          </div>
 
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 mb-8">
-            <div>
-              <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Email</dt>
-              <dd className="text-gray-900">{person.email}</dd>
-            </div>
             <div>
               <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Title</dt>
               <dd className="text-gray-900">{person.title}</dd>
@@ -68,10 +70,22 @@ export default function ProfilePage() {
               <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Organization</dt>
               <dd className="text-gray-900">{person.organization}</dd>
             </div>
+            <div>
+              <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Email</dt>
+              <dd className="text-gray-900">{person.email}</dd>
+            </div>
           </dl>
 
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Groups</h3>
+            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+              <svg className="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              Groups
+            </h3>
             {memberships.length === 0 ? (
               <p className="text-sm text-gray-400">No group memberships.</p>
             ) : (
@@ -82,7 +96,15 @@ export default function ProfilePage() {
                       onClick={() => navigate(`/group/${group.id}`)}
                       className="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-gray-100 bg-gray-50 hover:bg-blue-50 hover:border-blue-200 transition-colors text-sm"
                     >
-                      <span className="text-gray-700 font-medium">{group.name}</span>
+                      <span className="flex items-center gap-2 text-gray-700 font-medium">
+                        <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                          <circle cx="9" cy="7" r="4"/>
+                          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                        {group.name}
+                      </span>
                       <RoleBadge role={role} />
                     </button>
                   </li>
