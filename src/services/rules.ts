@@ -111,6 +111,7 @@ export function saveRules(
   combinator: 'AND' | 'OR',
   triggerOnUpdate: boolean,
   stagedPersonIds: string[],
+  actorId: string | null = null,
 ): void {
   // 1. Upsert in S5
   const allRules = getAutoMembershipRules()
@@ -137,13 +138,13 @@ export function saveRules(
     }))
   if (newMemberships.length > 0) saveMemberships([...memberships, ...newMemberships])
 
-  // 3. N29: Write MEMBER_ADDED events with actorType AUTOMATIC_MEMBERSHIP
+  // 3. N29: Write MEMBER_ADDED events; staged adds are attributed to the acting person
   for (const m of newMemberships) {
     const person = people.find(p => p.id === m.personId)
     writeChangeEvent({
       groupId,
-      actorType: 'AUTOMATIC_MEMBERSHIP',
-      actorId: null,
+      actorType: actorId ? 'PERSON' : 'AUTOMATIC_MEMBERSHIP',
+      actorId: actorId ?? null,
       eventType: 'MEMBER_ADDED',
       payload: { personId: m.personId, personName: person?.name ?? m.personId },
     })

@@ -152,7 +152,8 @@ export default function AMRuleEditorPage() {
   function handleSave() {
     if (!groupId) return
     const valid = conditions.map(toCondition).filter((c): c is Condition => c !== null)
-    saveRules(groupId, valid, combinator, triggerOnUpdate, [...stagedPersonIds])
+    const session = getSession()
+    saveRules(groupId, valid, combinator, triggerOnUpdate, [...stagedPersonIds], session?.personId ?? null)
     navigate(`/group/${groupId}`, { replace: true })
   }
 
