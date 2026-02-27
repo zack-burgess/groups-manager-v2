@@ -85,6 +85,7 @@ export default function SetupPage() {
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="Full name"
+                autoComplete="off"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 autoFocus
               />
