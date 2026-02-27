@@ -15,7 +15,7 @@ export function generateEmail(name: string): string {
   const parts = name.trim().split(/\s+/)
   const first = parts[0].replace(/[^a-zA-Z]/g, '').toLowerCase()
   const last = parts.slice(1).join('').replace(/[^a-zA-Z]/g, '').toLowerCase()
-  return `${first}.${last}@acme.com`
+  return last ? `${first}.${last}@acme.com` : `${first}@acme.com`
 }
 
 // N10: Load a single person by ID
