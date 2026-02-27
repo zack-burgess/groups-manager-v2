@@ -7,7 +7,7 @@ import {
   loadAllEmployees, checkSystemAdminGuard,
   suspendEmployee, rehireEmployee,
   loadEmployeeForUpdate, updateEmployee,
-  generateEmail,
+  generateEmail, lookupPerson,
 } from '../services/people'
 import type { Person } from '../types'
 
@@ -166,6 +166,8 @@ function UpdateEmployeeModal({ person, onSave, onCancel }: UpdateEmployeeModalPr
   const [title, setTitle] = useState(person.title)
   const [org, setOrg] = useState(person.organization)
   const derivedEmail = generateEmail(name)
+  const existing = name.trim() ? lookupPerson(name.trim()) : null
+  const nameTaken = existing !== null && existing.id !== person.id
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
@@ -179,9 +181,12 @@ function UpdateEmployeeModal({ person, onSave, onCancel }: UpdateEmployeeModalPr
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full px-3 py-2 border rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${nameTaken ? 'border-red-400' : 'border-gray-300'}`}
               autoFocus
             />
+            {nameTaken && (
+              <p className="mt-1 text-xs text-red-500">This name is already taken.</p>
+            )}
           </div>
 
           <div>
@@ -222,7 +227,7 @@ function UpdateEmployeeModal({ person, onSave, onCancel }: UpdateEmployeeModalPr
             </button>
             <button
               onClick={() => onSave(person.id, name, title, org)}
-              disabled={!name.trim()}
+              disabled={!name.trim() || nameTaken}
               className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Update

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { PREDEFINED_TITLES, PREDEFINED_ORGS } from '../data/lookups'
-import { createEmployee, generateEmail } from '../services/people'
+import { createEmployee, generateEmail, lookupPerson } from '../services/people'
 import { getPeople, getGroups, getMemberships } from '../services/storage'
 import { addMember, changeMemberRole } from '../services/groups'
 
@@ -32,7 +32,8 @@ export default function SetupPage() {
   if (!fromAdmin && !state?.name) return null
 
   const derivedEmail = generateEmail(name)
-  const isValid = name.trim() !== '' && title !== '' && org !== ''
+  const nameTaken = name.trim() !== '' && lookupPerson(name.trim()) !== null
+  const isValid = name.trim() !== '' && title !== '' && org !== '' && !nameTaken
 
   function handleComplete() {
     if (!isValid) return
@@ -85,9 +86,12 @@ export default function SetupPage() {
               onChange={e => setName(e.target.value)}
               placeholder="Full name"
               autoComplete="off"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full px-3 py-2 border rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${nameTaken ? 'border-red-400' : 'border-gray-300'}`}
               autoFocus
             />
+            {nameTaken && (
+              <p className="mt-1 text-xs text-red-500">This name is already taken.</p>
+            )}
           </div>
 
           <div>
