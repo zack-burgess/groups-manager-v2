@@ -19,7 +19,7 @@ test.describe('Rule editor preview', () => {
     await page.click('button:has-text("Sign In")')
     await page.waitForURL('**/setup**')
     await page.click('button:has-text("Complete Setup")')
-    await page.waitForURL('**/profile/**')
+    await page.waitForURL('**/profile*')
 
     // Navigate to Recruiting and open rule editor
     await page.click('button:has-text("Recruiting")')

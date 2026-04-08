@@ -1,5 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { initializeStorage } from './services/storage'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { initializeStorage, getSession } from './services/storage'
 import LoginPage from './pages/LoginPage'
 import SetupPage from './pages/SetupPage'
 import ProfilePage from './pages/ProfilePage'
@@ -12,12 +12,19 @@ import AboutPage from './pages/AboutPage'
 
 initializeStorage()
 
+function LoginOrRedirect() {
+  const session = getSession()
+  if (session) return <Navigate to="/profile" replace />
+  return <LoginPage />
+}
+
 export default function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<LoginOrRedirect />} />
         <Route path="/setup" element={<SetupPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/profile/:personId" element={<ProfilePage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/group/:groupId" element={<GroupDetailPage />} />

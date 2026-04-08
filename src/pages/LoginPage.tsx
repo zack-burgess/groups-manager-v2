@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { lookupPerson, generateEmail } from '../services/people'
-import { getSession, saveSession } from '../services/storage'
+import { saveSession } from '../services/storage'
 
 type LoginState = 'idle' | 'welcome' | 'suspended'
 
@@ -10,13 +10,6 @@ export default function LoginPage() {
   const [name, setName] = useState('me')
   const [loginState, setLoginState] = useState<LoginState>('idle')
   const [welcomeName, setWelcomeName] = useState('')
-
-  useEffect(() => {
-    const session = getSession()
-    if (session) {
-      navigate(`/profile/${session.personId}`, { replace: true })
-    }
-  }, [navigate])
 
   function handleSignIn() {
     const trimmed = name.trim()
@@ -29,13 +22,13 @@ export default function LoginPage() {
       setWelcomeName(person.name)
       setLoginState('welcome')
       setTimeout(() => {
-        navigate(`/profile/${person.id}`)
+        navigate('/profile', { replace: true })
       }, 1500)
     } else if (person && person.status === 'SUSPENDED') {
       setLoginState('suspended')
     } else {
       const email = generateEmail(trimmed)
-      navigate('/setup', { state: { name: trimmed, email } })
+      navigate('/setup', { state: { name: trimmed, email }, replace: true })
     }
   }
 
