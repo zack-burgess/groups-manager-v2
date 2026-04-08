@@ -15,7 +15,6 @@ export default function EmployeeManagementPage() {
   const navigate = useNavigate()
   const [active, setActive] = useState<Person[]>([])
   const [suspended, setSuspended] = useState<Person[]>([])
-  const [currentPersonId, setCurrentPersonId] = useState<string | null>(null)
   const [editingPerson, setEditingPerson] = useState<Person | null>(null)
 
   function refresh() {
@@ -27,7 +26,6 @@ export default function EmployeeManagementPage() {
   useEffect(() => {
     const session = getSession()
     if (!session) { navigate('/', { replace: true }); return }
-    setCurrentPersonId(session.personId)
     refresh()
   }, [navigate])
 
