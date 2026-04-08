@@ -27,7 +27,7 @@ export default function GroupDetailPage() {
   const [tab, setTab] = useState<Tab>('members')
   const [currentPersonId, setCurrentPersonId] = useState<string | null>(null)
   const [canAdd, setCanAdd] = useState(false)
-  const [historyHintDismissed, setHistoryHintDismissed] = useState(false)
+  const [historyHintDismissed, setHistoryHintDismissed] = useState(() => localStorage.getItem('historyHintDismissed') === 'true')
 
   // Inline add panel state
   const [addPanelOpen, setAddPanelOpen] = useState(false)
@@ -227,7 +227,7 @@ export default function GroupDetailPage() {
             </button>
             <div className="relative">
               <button
-                onClick={() => { setTab('history'); setHistoryHintDismissed(true) }}
+                onClick={() => { setTab('history'); setHistoryHintDismissed(true); localStorage.setItem('historyHintDismissed', 'true') }}
                 className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
                 tab === 'history'
                   ? 'border-blue-600 text-blue-600'
