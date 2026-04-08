@@ -84,7 +84,7 @@ test.describe('Rule editor preview', () => {
     await page.locator('li:has-text("Software Engineer")').first().click()
 
     // Add second condition
-    await page.click('text=+ Add Condition')
+    await page.click('text=+ Additional Condition')
 
     // Set second condition field to organization
     const fieldSelects = page.locator('select')
@@ -105,7 +105,7 @@ test.describe('Rule editor preview', () => {
     await page.locator('li:has-text("Designer")').first().click()
 
     // Add second condition
-    await page.click('text=+ Add Condition')
+    await page.click('text=+ Additional Condition')
 
     // Second condition: title is Recruiter
     const secondValueInput = page.locator('input[placeholder="Enter title…"]').nth(1)

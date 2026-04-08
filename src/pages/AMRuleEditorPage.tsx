@@ -235,13 +235,13 @@ export default function AMRuleEditorPage() {
                   )}
                 </div>
               ))}
+              <button
+                onClick={handleAddCondition}
+                className="mt-4 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+              >
+                + Additional Condition
+              </button>
             </div>
-            <button
-              onClick={handleAddCondition}
-              className="mt-4 text-sm text-blue-600 hover:text-blue-800 transition-colors"
-            >
-              + Add Condition
-            </button>
           </section>
 
           {/* Preview section */}
