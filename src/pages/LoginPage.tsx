@@ -55,7 +55,7 @@ export default function LoginPage() {
           </svg>
           Groups Manager
         </h1>
-        <p className="text-sm text-gray-500 mb-8">Sign in to continue</p>
+        <p className="text-sm text-gray-500 mb-8">Sign in to try this prototype.</p>
 
         <div className="space-y-4">
           <div>

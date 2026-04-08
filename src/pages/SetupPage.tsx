@@ -73,7 +73,7 @@ export default function SetupPage() {
           {fromAdmin ? 'Create Employee' : 'Complete your Employee Profile'}
         </h1>
         <p className="text-sm text-gray-500 mb-8">
-          {fromAdmin ? "Fill in the new employee's details." : 'Fill in your details to get started.'}
+          {fromAdmin ? "Fill in the new employee's details." : 'These fields determine which groups you belong to.'}
         </p>
 
         <div className="space-y-5">

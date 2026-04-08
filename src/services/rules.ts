@@ -138,13 +138,13 @@ export function saveRules(
     }))
   if (newMemberships.length > 0) saveMemberships([...memberships, ...newMemberships])
 
-  // 3. N29: Write MEMBER_ADDED events; staged adds are attributed to the acting person
+  // 3. N29: Write MEMBER_ADDED events; staged adds are attributed to auto-membership
   for (const m of newMemberships) {
     const person = people.find(p => p.id === m.personId)
     writeChangeEvent({
       groupId,
-      actorType: actorId ? 'PERSON' : 'AUTOMATIC_MEMBERSHIP',
-      actorId: actorId ?? null,
+      actorType: 'AUTOMATIC_MEMBERSHIP',
+      actorId: null,
       eventType: 'MEMBER_ADDED',
       payload: { personId: m.personId, personName: person?.name ?? m.personId },
     })

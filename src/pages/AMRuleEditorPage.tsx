@@ -65,7 +65,8 @@ export default function AMRuleEditorPage() {
     { id: 'c0', field: 'title', operator: 'is', value: '' },
   ])
   const [combinator, setCombinator] = useState<'AND' | 'OR'>('AND')
-  const [triggerOnUpdate, setTriggerOnUpdate] = useState(false)
+  const [triggerOnUpdate, setTriggerOnUpdate] = useState(true)
+  const [isNewRule, setIsNewRule] = useState(true)
   const [stagedPersonIds, setStagedPersonIds] = useState<Set<string>>(new Set())
   const [evalResult, setEvalResult] = useState<EvalResult>({ missing: [], staged: [], current: [] })
 
@@ -80,6 +81,7 @@ export default function AMRuleEditorPage() {
 
     const existing = loadGroupRules(groupId)
     if (existing) {
+      setIsNewRule(false)
       setConditions(existing.conditions.map((c, i) => ({
         id: `c${i}`,
         field: c.field,
@@ -224,6 +226,14 @@ export default function AMRuleEditorPage() {
                     onChange={updates => handleConditionChange(cond.id, updates)}
                     onRemove={() => handleRemoveCondition(cond.id)}
                   />
+                  {idx === 0 && validConditions.length === 0 && group?.name === 'Recruiting' && (
+                    <div className="relative mt-1 ml-3 w-fit">
+                      <div className="absolute -top-1 left-4 w-2 h-2 bg-amber-50 border-l border-t border-amber-300 rotate-45" />
+                      <div className="bg-amber-50 border border-amber-300 rounded-lg px-3 py-2 text-sm text-amber-800">
+                        Try entering title is "Product Manager and Builder."
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -238,11 +248,19 @@ export default function AMRuleEditorPage() {
           {/* Preview section */}
           <section className="mb-8">
             <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-4">Preview</h3>
+            {isNewRule && group?.name === 'Recruiting' && evalResult.missing.length > 0 && !hasStagedAdds && validConditions.length > 0 && (
+              <div className="relative mb-2 mr-6 ml-auto w-fit">
+                <div className="absolute -bottom-1 right-4 w-2 h-2 bg-amber-50 border-r border-b border-amber-300 rotate-45" />
+                <div className="bg-amber-50 border border-amber-300 rounded-lg px-3 py-2 text-sm text-amber-800 whitespace-nowrap">
+                  Click "+ Add Non-Members" to stage them.
+                </div>
+              </div>
+            )}
             <div className="rounded-lg border border-gray-200 overflow-hidden h-[200px]">
               <div className="divide-y divide-gray-100 h-full overflow-y-auto">
               {validConditions.length === 0 ? (
                 <div className="px-4 py-8 text-center text-sm text-gray-400">
-                  Set a filter to see matches
+                  Set a filter above to see matches.
                 </div>
               ) : hasNoMatches ? (
                 <div className="px-4 py-8 text-center text-sm text-gray-400">
@@ -312,6 +330,16 @@ export default function AMRuleEditorPage() {
             </div>
           </section>
 
+          {/* Hint callout to save */}
+          {isNewRule && group?.name === 'Recruiting' && hasStagedAdds && (
+            <div className="relative mb-4 mr-6 ml-auto w-fit">
+              <div className="absolute -bottom-1 right-4 w-2 h-2 bg-amber-50 border-r border-b border-amber-300 rotate-45" />
+              <div className="bg-amber-50 border border-amber-300 rounded-lg px-3 py-2 text-sm text-amber-800">
+                Save your rule to activate Auto-Membership.
+              </div>
+            </div>
+          )}
+
           {/* Save / Cancel */}
           <div className="flex gap-3">
             <button
@@ -326,7 +354,7 @@ export default function AMRuleEditorPage() {
                 disabled={hasIncomplete}
                 className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Save Rules
+                Save Rule
               </button>
               {hasIncomplete && (
                 <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-xs text-white bg-gray-700 rounded whitespace-nowrap hidden group-hover:block pointer-events-none">

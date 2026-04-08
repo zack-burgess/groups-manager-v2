@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import AppHeader from '../components/AppHeader'
 import { loadPerson } from '../services/people'
 import { loadPersonMemberships } from '../services/memberships'
+import { loadGroupRules } from '../services/groups'
 import { getSession } from '../services/storage'
 import type { Person, Group, MemberRole } from '../types'
 
@@ -89,27 +90,41 @@ export default function ProfilePage() {
             {memberships.length === 0 ? (
               <p className="text-sm text-gray-400">No group memberships.</p>
             ) : (
-              <ul className="space-y-2">
-                {[...memberships].sort((a, b) => a.role === 'ADMIN' && b.role !== 'ADMIN' ? -1 : b.role === 'ADMIN' && a.role !== 'ADMIN' ? 1 : 0).map(({ group, role }) => (
-                  <li key={group.id}>
-                    <button
-                      onClick={() => navigate(`/group/${group.id}`)}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-gray-100 bg-gray-50 hover:bg-blue-50 hover:border-blue-200 transition-colors text-sm"
-                    >
-                      <span className="flex items-center gap-2 text-gray-700 font-medium">
-                        <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                          <circle cx="9" cy="7" r="4"/>
-                          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                        </svg>
-                        {group.name}
-                      </span>
-                      <RoleBadge role={role} />
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <>
+                <ul className="space-y-2">
+                  {(() => {
+                    const sorted = [...memberships].sort((a, b) => a.role === 'ADMIN' && b.role !== 'ADMIN' ? -1 : b.role === 'ADMIN' && a.role !== 'ADMIN' ? 1 : 0)
+                    const showRecruitingHint = isOwnProfile && sorted.some(m => m.group.name === 'Recruiting' && m.role === 'ADMIN' && !loadGroupRules(m.group.id))
+                    return sorted.map(({ group, role }) => (
+                      <li key={group.id}>
+                        <button
+                          onClick={() => navigate(`/group/${group.id}`)}
+                          className="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-gray-100 bg-gray-50 hover:bg-blue-50 hover:border-blue-200 transition-colors text-sm"
+                        >
+                          <span className="flex items-center gap-2 text-gray-700 font-medium">
+                            <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                              <circle cx="9" cy="7" r="4"/>
+                              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                            {group.name}
+                          </span>
+                          <RoleBadge role={role} />
+                        </button>
+                        {showRecruitingHint && group.name === 'Recruiting' && (
+                          <div className="relative mt-1 ml-6 w-fit">
+                            <div className="absolute -top-1 left-4 w-2 h-2 bg-amber-50 border-l border-t border-amber-300 rotate-45" />
+                            <div className="bg-amber-50 border border-amber-300 rounded-lg px-3 py-2 text-sm text-amber-800">
+                              Click on Recruiting and set up Auto-Membership.
+                            </div>
+                          </div>
+                        )}
+                      </li>
+                    ))
+                  })()}
+                </ul>
+              </>
             )}
 
             <button

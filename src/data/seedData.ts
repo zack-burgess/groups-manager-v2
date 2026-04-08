@@ -23,7 +23,7 @@ const seedData: SeedData = {
     { id: 'g3', name: 'R&D', description: 'Research and Development department.', membershipSetting: 'ADMIN_ONLY' },
     { id: 'g4', name: 'Product', description: 'Product managers and builders.', membershipSetting: 'OPEN' },
     { id: 'g5', name: 'Design', description: 'Designers and UX researchers.', membershipSetting: 'OPEN' },
-    { id: 'g6', name: 'Recruiting', description: 'Recruiting team.', membershipSetting: 'OPEN' },
+    { id: 'g6', name: 'Recruiting', description: 'Recruiting team, finding the best people.', membershipSetting: 'ADMIN_ONLY' },
   ],
 
   memberships: [

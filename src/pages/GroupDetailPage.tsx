@@ -27,6 +27,7 @@ export default function GroupDetailPage() {
   const [tab, setTab] = useState<Tab>('members')
   const [currentPersonId, setCurrentPersonId] = useState<string | null>(null)
   const [canAdd, setCanAdd] = useState(false)
+  const [historyHintDismissed, setHistoryHintDismissed] = useState(false)
 
   // Inline add panel state
   const [addPanelOpen, setAddPanelOpen] = useState(false)
@@ -160,7 +161,7 @@ export default function GroupDetailPage() {
           <p className="text-sm text-gray-500 mb-6">{group.description}</p>
 
           {/* AM panel */}
-          <div className="mb-6 p-4 rounded-lg border border-gray-100 bg-gray-50">
+          <div className={`${isAdmin && !rules && group.name === 'Recruiting' ? 'mb-1' : 'mb-6'} p-4 rounded-lg border border-gray-100 bg-gray-50`}>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Auto-membership</span>
               {isAdmin && (
@@ -176,8 +177,37 @@ export default function GroupDetailPage() {
                 </button>
               )}
             </div>
-            {rules ? <RuleSummary rules={rules} /> : <p className="text-sm text-gray-400">Not configured</p>}
+            {rules ? (
+              <RuleSummary rules={rules} />
+            ) : (
+              <p className="text-sm text-gray-500">
+                {isAdmin ? 'Automatically add members based on title, org, and/or email.' : 'Not configured'}
+              </p>
+            )}
           </div>
+          {isAdmin && !rules && group.name === 'Recruiting' && (
+            <div className="relative mb-6 ml-6 w-fit">
+              <div className="absolute -top-1 left-4 w-2 h-2 bg-amber-50 border-l border-t border-amber-300 rotate-45" />
+              <div className="bg-amber-50 border border-amber-300 rounded-lg px-3 py-2 text-sm text-amber-800">
+                Click{' '}
+                <svg className="inline w-3.5 h-3.5 -mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 20h9"/>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>{' '}
+                to configure Auto-Membership.
+              </div>
+            </div>
+          )}
+
+          {/* History callout */}
+          {isAdmin && rules && tab === 'members' && group.name === 'Recruiting' && !historyHintDismissed && history.some(e => e.eventType === 'MEMBER_ADDED') && (
+            <div className="relative mb-1 w-fit" style={{ marginLeft: '8.25rem' }}>
+              <div className="absolute -bottom-1 left-3 w-2 h-2 bg-amber-50 border-r border-b border-amber-300 rotate-45" />
+              <div className="bg-amber-50 border border-amber-300 rounded-lg px-3 py-2 text-sm text-amber-800 whitespace-nowrap">
+                Click History to see who was automatically added.
+              </div>
+            </div>
+          )}
 
           {/* Tabs */}
           <div className="flex gap-4 border-b border-gray-200 mb-4">
@@ -195,9 +225,10 @@ export default function GroupDetailPage() {
               </svg>
               Members ({members.length})
             </button>
-            <button
-              onClick={() => setTab('history')}
-              className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
+            <div className="relative">
+              <button
+                onClick={() => { setTab('history'); setHistoryHintDismissed(true) }}
+                className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
                 tab === 'history'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-900'
@@ -205,6 +236,7 @@ export default function GroupDetailPage() {
             >
               History
             </button>
+            </div>
           </div>
 
           {/* Members tab note */}
