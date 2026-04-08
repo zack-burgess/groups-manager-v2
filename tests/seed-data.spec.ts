@@ -20,7 +20,7 @@ test.describe('Seed data coverage', () => {
     await page.fill('#name', 'Zack Burgess')
     await page.click('button:has-text("Sign In")')
     await page.locator('text=Welcome back').waitFor({ timeout: 3000 })
-    await page.waitForURL('**/profile*')
+    await page.waitForURL('**/profile/**')
   })
 
   test('every predefined title is represented by at least one employee', async ({ page }) => {
@@ -71,7 +71,7 @@ test.describe('Seed data coverage', () => {
       await expect(adminBadge, `Group "${groupName}" has no admin`).toBeVisible()
 
       await page.click('text=Groups Manager')
-      await page.waitForURL('**/profile*')
+      await page.waitForURL('**/profile/**')
     }
 
     // Check groups Zack isn't in via direct navigation
@@ -110,7 +110,7 @@ test.describe('Seed data coverage', () => {
     await page.fill('#name', 'Zack Burgess')
     await page.click('button:has-text("Sign In")')
     await page.locator('text=Welcome back').waitFor({ timeout: 3000 })
-    await page.waitForURL('**/profile*')
+    await page.waitForURL('**/profile/**')
 
     // Check employee list is restored
     await page.click('text=Manage Employees')

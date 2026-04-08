@@ -34,7 +34,7 @@ test.describe('Auto-membership callout flow', () => {
     await page.click('button:has-text("Complete Setup")')
 
     // Step 2: Profile page — should see Recruiting with yellow callout
-    await page.waitForURL('**/profile*')
+    await page.waitForURL('**/profile/**')
     const recruitingHint = page.locator('text=Click on Recruiting and set up Auto-Membership.')
     await expect(recruitingHint).toBeVisible()
 
@@ -115,7 +115,7 @@ test.describe('Auto-membership callout flow', () => {
     await page.goto('/')
     await page.fill('#name', 'Zack Burgess')
     await page.click('button:has-text("Sign In")')
-    await page.waitForURL('**/profile*')
+    await page.waitForURL('**/profile/**')
 
     // Navigate to a group that isn't Recruiting (e.g., Product)
     await page.click('button:has-text("Product")')
@@ -133,7 +133,7 @@ test.describe('Auto-membership callout flow', () => {
     await page.click('button:has-text("Sign In")')
     await page.waitForURL('**/setup**')
     await page.click('button:has-text("Complete Setup")')
-    await page.waitForURL('**/profile*')
+    await page.waitForURL('**/profile/**')
 
     // Profile → Recruiting → pencil → save rule
     await page.click('button:has-text("Recruiting")')
@@ -150,7 +150,7 @@ test.describe('Auto-membership callout flow', () => {
 
     // Browser back should go to profile, not the group page again
     await page.goBack()
-    await page.waitForURL('**/profile*')
+    await page.waitForURL('**/profile/**')
   })
 
   test('profile page hint disappears after rules are configured on Recruiting', async ({ page }) => {
@@ -160,7 +160,7 @@ test.describe('Auto-membership callout flow', () => {
     await page.click('button:has-text("Sign In")')
     await page.waitForURL('**/setup**')
     await page.click('button:has-text("Complete Setup")')
-    await page.waitForURL('**/profile*')
+    await page.waitForURL('**/profile/**')
 
     // Hint should be visible
     const recruitingHint = page.locator('text=Click on Recruiting and set up Auto-Membership.')
@@ -181,7 +181,7 @@ test.describe('Auto-membership callout flow', () => {
 
     // Go back to profile
     await page.click('text=Groups Manager')
-    await page.waitForURL('**/profile*')
+    await page.waitForURL('**/profile/**')
 
     // Hint should be gone
     await expect(recruitingHint).not.toBeVisible()

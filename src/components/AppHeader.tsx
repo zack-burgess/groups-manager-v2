@@ -41,7 +41,7 @@ export default function AppHeader() {
     <header className="bg-white border-b border-gray-200">
       <div className="max-w-4xl mx-auto px-6 h-14 flex items-center gap-4">
         <Link
-          to={session ? '/profile' : '/'}
+          to={session ? `/profile/${session.personId}` : '/'}
           className="text-base font-semibold text-gray-900 hover:text-blue-600 transition-colors shrink-0 flex items-center gap-1.5"
         >
           <svg className="w-4 h-4 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

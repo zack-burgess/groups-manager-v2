@@ -57,7 +57,7 @@ export default function EmployeeManagementPage() {
       <AppHeader />
       <main className="max-w-4xl mx-auto px-6 py-8">
         <button
-          onClick={() => navigate('/profile')}
+          onClick={() => currentPersonId && navigate(`/profile/${currentPersonId}`)}
           className="mb-4 text-sm text-gray-500 hover:text-gray-900 transition-colors"
         >
           ← Back

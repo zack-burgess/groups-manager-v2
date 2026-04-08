@@ -54,7 +54,7 @@ export default function SetupPage() {
     if (fromAdmin) {
       navigate('/employees', { replace: true })
     } else {
-      navigate('/profile', { replace: true })
+      navigate(`/profile/${person.id}`, { replace: true })
     }
   }
 

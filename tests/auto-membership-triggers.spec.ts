@@ -17,7 +17,7 @@ test.describe('Auto-membership triggers', () => {
     await page.fill('#name', 'Zack Burgess')
     await page.click('button:has-text("Sign In")')
     await page.locator('text=Welcome back').waitFor({ timeout: 3000 })
-    await page.waitForURL('**/profile*')
+    await page.waitForURL('**/profile/**')
   })
 
   test('On Create: new employee matching rule is auto-added to group', async ({ page }) => {
@@ -132,7 +132,7 @@ test.describe('Auto-membership triggers', () => {
 
     // Navigate to All Employees
     await page.click('text=Groups Manager')
-    await page.waitForURL('**/profile*')
+    await page.waitForURL('**/profile/**')
     await page.click('button:has-text("All Employees")')
     await page.waitForURL('**/group/**')
 
