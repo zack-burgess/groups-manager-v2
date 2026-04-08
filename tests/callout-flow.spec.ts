@@ -28,7 +28,7 @@ test.describe('Auto-membership callout flow', () => {
 
     // Should go to setup page
     await page.waitForURL('**/setup**')
-    expect(await page.textContent('p.text-sm')).toContain('These fields determine which groups you belong to.')
+    await page.locator('text=These fields determine which groups you belong to.').waitFor()
 
     // Complete setup with defaults (Hiring Manager, Human Resources)
     await page.click('button:has-text("Complete Setup")')
