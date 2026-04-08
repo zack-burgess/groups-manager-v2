@@ -28,7 +28,7 @@ export default function AboutPage() {
               Create groups, configure auto-membership rules based on title, org, or email, and see matching employees added automatically.
             </p>
             <p>
-              When configuring a Rule, play with the Filters to see the power of the Preview. And Manage Employees to trigger On Create, On Update, and On Suspend.
+              When configuring a Rule, play with the Filters to see the power of the Preview. To hire, promote or end employment of someone, click Manage Employees. Auto-Membership rules will act on the associated triggers: On Create, On Update, and On Suspend.
             </p>
           </div>
 
