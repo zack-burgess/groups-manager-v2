@@ -111,7 +111,6 @@ export function saveRules(
   combinator: 'AND' | 'OR',
   triggerOnUpdate: boolean,
   stagedPersonIds: string[],
-  actorId: string | null = null,
 ): void {
   // 1. Upsert in S5
   const allRules = getAutoMembershipRules()
