@@ -129,7 +129,7 @@ export default function GroupDetailPage() {
       <AppHeader />
       <main className="max-w-4xl mx-auto px-6 py-8">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => currentPersonId ? navigate(`/profile/${currentPersonId}`) : navigate(-1)}
           className="mb-4 text-sm text-gray-500 hover:text-gray-900 transition-colors"
         >
           ← Back
@@ -166,7 +166,7 @@ export default function GroupDetailPage() {
               <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Auto-membership</span>
               {isAdmin && (
                 <button
-                  onClick={() => navigate(`/group/${groupId}/rules`)}
+                  onClick={() => navigate(`/group/${groupId}/rules`, { replace: true })}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                   title="Edit rules"
                 >

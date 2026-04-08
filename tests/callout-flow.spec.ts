@@ -126,6 +126,33 @@ test.describe('Auto-membership callout flow', () => {
     await expect(pencilHint).not.toBeVisible()
   })
 
+  test('browser back from group page goes to profile after saving rules', async ({ page }) => {
+    // Sign up as new user (who becomes admin of Recruiting)
+    await page.goto('/')
+    await page.fill('#name', 'Nav Test User')
+    await page.click('button:has-text("Sign In")')
+    await page.waitForURL('**/setup**')
+    await page.click('button:has-text("Complete Setup")')
+    await page.waitForURL('**/profile/**')
+
+    // Profile → Recruiting → pencil → save rule
+    await page.click('button:has-text("Recruiting")')
+    await page.waitForURL('**/group/**')
+    await page.click('button[title="Edit rules"]')
+    await page.waitForURL('**/rules**')
+
+    const valueInput = page.locator('input[placeholder="Enter title…"]')
+    await valueInput.fill('Product Manager and Builder')
+    await page.click('li:has-text("Product Manager and Builder")')
+    await page.click('button:has-text("+ Add Non-Members")')
+    await page.click('button:has-text("Save Rule")')
+    await page.waitForURL('**/group/**')
+
+    // Browser back should go to profile, not the group page again
+    await page.goBack()
+    await page.waitForURL('**/profile/**')
+  })
+
   test('profile page hint disappears after rules are configured on Recruiting', async ({ page }) => {
     // Sign up as new user
     await page.goto('/')
